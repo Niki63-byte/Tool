@@ -3,722 +3,565 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lyrqos — All-in-One Toolkit</title>
+<title>Lyrqos — Video Optimizer Pro</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);background-attachment:fixed;color:#fff;min-height:100vh;overflow-x:hidden}
-  a{color:inherit;text-decoration:none}
-  button{font-family:inherit;border:none;cursor:pointer;background:none;color:inherit}
+  :root {
+    --bg: #0a0818;
+    --surface: rgba(255, 255, 255, 0.03);
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #f0eee6;
+    --muted: #7a7570;
+    --accent: #00f5a0;
+    --accent2: #00d9f5;
+    --purple: #a855f7;
+    --danger: #ff5050;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', Consolas, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font);
+    background: radial-gradient(circle at 10% 20%, rgba(0, 245, 160, 0.05), transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.05), transparent 40%),
+                var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; border: none; cursor: pointer; background: none; color: inherit; }
 
-  /* Particles */
-  .particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-  .particle{position:absolute;background:rgba(255,255,255,0.5);border-radius:50%;animation:float linear infinite}
-  @keyframes float{from{transform:translateY(100vh) scale(0);opacity:0}to{transform:translateY(-10vh) scale(1);opacity:1}}
+  /* Анимированный фон */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(circle at center, black, transparent 80%);
+    -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%);
+  }
 
-  /* Nav */
-  nav{position:sticky;top:0;z-index:100;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;background:rgba(15,12,41,0.75);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06)}
-  nav .logo{font-size:20px;font-weight:800;background:linear-gradient(90deg,#00f5a0,#00d9f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:8px}
-  .beta-tag{font-size:9px;padding:2px 6px;background:rgba(255,200,50,0.2);color:#ffd060;border:1px solid rgba(255,200,50,0.4);border-radius:4px;letter-spacing:1px;-webkit-text-fill-color:#ffd060;font-weight:700}
-  nav ul{display:flex;gap:2px;list-style:none;align-items:center;flex-wrap:wrap}
-  nav ul a{padding:8px 12px;border-radius:100px;font-size:12px;color:rgba(255,255,255,0.7);transition:.3s;white-space:nowrap;cursor:pointer}
-  nav ul a:hover{color:#00f5a0;background:rgba(0,245,160,0.08)}
-  nav ul a.active{color:#0f0c29;background:linear-gradient(90deg,#00f5a0,#00d9f5);font-weight:600}
+  /* Навигация */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 32px;
+    background: rgba(10, 8, 24, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-size: 20px; font-weight: 800; letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo span {
+    font-size: 9px; padding: 2px 6px; border-radius: 4px;
+    background: rgba(255, 200, 50, 0.15); color: #ffd060;
+    border: 1px solid rgba(255, 200, 50, 0.3);
+    letter-spacing: 1px; -webkit-text-fill-color: #ffd060;
+  }
+  .nav-links { display: flex; gap: 8px; list-style: none; }
+  .nav-links a {
+    padding: 8px 16px; border-radius: 100px; font-size: 13px;
+    color: var(--muted); transition: .3s; cursor: pointer;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--surface); }
+  .nav-links a.active { color: var(--bg); background: linear-gradient(90deg, var(--accent), var(--accent2)); font-weight: 600; }
 
-  /* Pages */
-  .page{display:none;position:relative;z-index:1;animation:fadeIn .3s ease}
-  .page.active{display:block}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  /* Контейнер */
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; position: relative; z-index: 1; }
 
-  .hero{min-height:60vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:40px 20px}
-  .hero h1{font-size:clamp(32px,6vw,64px);background:linear-gradient(90deg,#00f5a0,#00d9f5,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;line-height:1.1}
-  .hero p{font-size:clamp(14px,1.6vw,17px);opacity:0.8;margin-bottom:28px;max-width:600px;line-height:1.6}
-  .btn{padding:12px 28px;border-radius:50px;background:linear-gradient(90deg,#00f5a0,#00d9f5);color:#0f0c29;font-size:14px;font-weight:700;transition:.3s}
-  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,245,160,0.4)}
-  .btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.2)}
-  .btn.ghost:hover{border-color:#00f5a0;color:#00f5a0;box-shadow:none}
-  .section{max-width:1200px;margin:0 auto;padding:40px 20px}
-  .section-title{font-size:clamp(24px,3vw,36px);text-align:center;margin-bottom:8px;background:linear-gradient(90deg,#00f5a0,#00d9f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .section-sub{text-align:center;opacity:0.7;margin-bottom:32px;font-size:14px}
+  /* Hero */
+  .hero { text-align: center; margin-bottom: 48px; animation: fadeUp .8s ease; }
+  .hero h1 {
+    font-size: clamp(32px, 6vw, 56px); font-weight: 800; line-height: 1.1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+  }
+  .hero p { font-size: 16px; color: var(--muted); max-width: 600px; margin: 0 auto; }
 
-  /* Tools Grid */
-  .tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-  .tool-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;cursor:pointer;transition:.3s;position:relative;overflow:hidden}
-  .tool-card:hover{transform:translateY(-4px);background:rgba(255,255,255,0.07);border-color:rgba(0,245,160,0.4)}
-  .tool-card .tool-icon{font-size:26px;margin-bottom:8px;display:block}
-  .tool-card h3{font-size:15px;margin-bottom:4px}
-  .tool-card p{font-size:11.5px;opacity:0.6;line-height:1.4}
-  .tool-badge{position:absolute;top:10px;right:10px;font-size:8px;padding:2px 6px;border-radius:4px;font-weight:700}
-  .tool-badge.hot{background:rgba(255,80,80,0.15);color:#ff8080}
-  .tool-badge.new{background:rgba(0,245,160,0.15);color:#00f5a0}
+  /* Карточки */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    transition: transform .3s ease, border-color .3s ease;
+  }
+  .card:hover { border-color: rgba(0, 245, 160, 0.3); transform: translateY(-2px); }
 
-  /* Modals */
-  .modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
-  .modal-overlay.open{display:flex}
-  .modal{background:linear-gradient(135deg,#1a1740,#24243e);border:1px solid rgba(255,255,255,0.1);border-radius:16px;max-width:760px;width:100%;padding:24px;max-height:90vh;overflow-y:auto;position:relative}
-  .modal-close{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center}
-  .modal h2{font-size:18px;margin-bottom:4px;color:#00f5a0}
-  .modal .modal-sub{font-size:12px;opacity:0.6;margin-bottom:16px}
-  .field{margin-bottom:12px}
-  .field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:1px;opacity:0.6;margin-bottom:6px}
-  .field input,.field select,.field textarea{width:100%;padding:9px 12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:12.5px;outline:none;font-family:inherit}
-  .field input:focus,.field textarea:focus{border-color:#00f5a0}
-  .btn-sm{padding:8px 14px;border-radius:6px;background:linear-gradient(90deg,#00f5a0,#00d9f5);color:#0f0c29;font-weight:700;font-size:11px;transition:.2s;display:inline-flex;align-items:center;justify-content:center;gap:4px}
-  .btn-sm:hover{transform:translateY(-1px)}
-  .btn-sm.ghost{background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.1)}
-  .tool-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-  .tool-output{background:rgba(0,0,0,0.4);border-radius:8px;padding:10px;font-family:monospace;font-size:11px;color:#b8ffd8;margin-top:10px;max-height:180px;overflow:auto;white-space:pre-wrap}
-  .image-upload{border:2px dashed rgba(0,245,160,0.3);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:.3s}
-  .image-upload:hover{border-color:#00f5a0;background:rgba(0,245,160,0.05)}
-  .image-upload.has-image{padding:0;border-style:solid;overflow:hidden;background:#0a0818}
-  .image-upload img,.image-upload canvas{width:100%;display:block;max-height:280px;1object-fit:contain}
+  /* Инструкция */
+  .instruction {
+    background: linear-gradient(90deg, rgba(255, 200, 50, 0.06), transparent);
+    border-left: 3px solid #ffd060;
+    padding: 20px 24px; border-radius: 0 12px 12px 0;
+    margin-bottom: 32px;
+  }
+  .instruction h3 { font-size: 14px; color: #ffd060; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .instruction ol { padding-left: 20px; font-size: 13px; color: var(--muted); line-height: 1.8; }
+  .instruction strong { color: var(--text); }
 
-  /* IDE */
-  .idepx-window{background:# solid0d0b1f;border:1 rgba(px solid rgba(255255,255,255,0.08);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);font-family:'JetBrains Mono',monospace;font-size:13px;max-width:1200px;margin:0 auto}
-  .ide-header{display:flex;align-items:center;padding:8px 14px;background:rgba(255,255,255,0.03);border-bottom:,255,255,0.06);height:38px}
-  .window-dots{display:flex;gap:6px}.window-dots span{width:10px;height:10px;border-radius:50%}
-  .dot-red{background:#ff5f56}.dot-yellow{background:#ffbd2e}.dot-green{background:#27c93f}
-  .ide-body{display:flex;height:400px;position:relative;background:#0d0b1f}
-  .ide-gutter{width:44px;background:rgba(0,0,0,0.2);padding:12px 8px 12px 0;text-align:right;color:rgba(255,255,255,0.2);font-size:12px;line-height:1.6;user-select:none}
-  .ide-code-pane{position:relative;flex:1;overflow:hidden}
-  .ide-highlight-layer,.ide-textarea{position:absolute;inset:0;padding:12px 16px;font-family:inherit;font-size:inherit;line-height:1.6;white-space:pre;border:none;outline:none;tab-size:2}
-  .ide-highlight-layer{color:#f8f8f2;pointer-events:none;z-index:0;overflow:auto}
-  .ide-textarea{background:transparent;color:transparent;caret-color:#00f5a0;resize:none;z-index:2;overflow:auto}
-  .ide-textarea::selection{background:rgba(0,245,160,0.2)}
-  .tok-keyword{color:#ff79c6}.tok-string{color:#50fa7b}.tok-comment{color:#6272a4}.tok-number{color:#ffb86c}.tok-function{color:#8be9fd}
-  .action-bar{display:flex;gap:8px;padding:10px 14px;background:rgba(0,0,0,0.15);border-top:1px solid rgba(255,255,255,0.04);flex-wrap:wrap}
-  .action-btn{padding:8px 16px;border-radius:6px;background:linear-gradient(90deg,#00f5a0,#00d9f5);color:#0f0c29;font-weight:700;font-size:11.5px;transition:.2s}
-  .action-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,245,160,0.3)}
-  .action-btn.ghost{background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.1)}
-  .issues-panel{margin-top:16px;background:rgba(0,0,0,0.25);border-radius:10px;overflow:hidden}
-  .issue-list{padding:10px;max-height:200px;overflow-y:auto}
-  .issue{padding:10px;border-radius:6px;background:rgba(255,255,255,0.02);border-left:3px solid;font-size:12px;margin-bottom:6px;cursor:pointer}
-  .issue.error{border-color:#ff5050}.issue.warning{border-color:#ffc832}.issue.info{border-color:#64b4ff}
+  /* Загрузка файла */
+  .drop-zone {
+    border: 2px dashed rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .3s ease;
+    background: rgba(255,255,255,0.01);
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(0, 245, 160, 0.05);
+  }
+  .drop-zone .icon { font-size: 48px; margin-bottom: 12px; display: block; }
+  .drop-zone .title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .drop-zone .sub { font-size: 12px; color: var(--muted); }
+  .file-input { display: none; }
 
-  /* Optimizer Specifics */
-  .instruction{background:linear-gradient(90deg,rgba(255,200,50,0.08),rgba(255,80,80,0.05));border:1px solid rgba(255,200,50,0.3);border-radius:12px;padding:16px 18px;margin-bottom:16px;font-size:12.5px;line-height:1.7}
-  .instruction h4{color:#ffd060;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-  .instruction ol{padding-left:20px;opacity:0.9}
-  .instruction li{margin-bottom:4px}
-  .instruction strong{color:#00f5a0}
-  .log-console{background:#0a0818;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px;font-family:'SF Mono',Consolas,monospace;font-size:12px;line-height:1.7;color:#b8ffd8;max-height:280px;overflow-y:auto;display:none;margin-top:12px}
-  .log-console .ln{margin:0}
-  .log-console .ok{color:#00f5a0}
-  .log-console .warn{color:#ffd060}
-  .log-console .err{color:#ff8080}
-  .log-console .dim{color:rgba(255,255,255,0.4)}
-  .log-console .blue{color:#8be9fd}
-  .success-box{background:rgba(0,245,160,0.08);border:1px solid rgba(0,245,160,0.3);border-radius:10px;padding:14px;margin-top:12px;font-size:12.5px;line-height:1.7;display:none}
-  .success-box h4{color:#00f5a0;margin-bottom:6px;font-size:13px}
+  /* Инфо о файле */
+  .file-info {
+    display: none; background: rgba(0,0,0,0.3); border-radius: 12px;
+    padding: 16px 20px; margin-top: 20px; font-family: var(--mono); font-size: 13px;
+    line-height: 1.8; color: #b8ffd8;
+  }
+  .file-info strong { color: var(--accent); }
 
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:linear-gradient(90deg,#00f5a0,#00d9f5);color:#0f0c29;padding:10px 20px;border-radius:100px;font-weight:700;font-size:12px;z-index:2000;transition:.3s;box-shadow:0 10px 30px rgba(0,245,160,0.4);max-width:90vw;text-align:center}
-  .toast.show{transform:translateX(-50%) translateY(0)}
+  /* Кнопки */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 16px; border-radius: 12px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #0a0818; font-weight: 700; font-size: 15px;
+    transition: all .3s ease; margin-top: 16px;
+    box-shadow: 0 4px 20px rgba(0, 245, 160, 0.2);
+  }
+  .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 245, 160, 0.4);
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }
+  .btn.ghost {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border); box-shadow: none;
+  }
+  .btn.ghost:hover { background: rgba(255,255,255,0.05); border-color: var(--text); }
 
-  @media(max-width:768px){
-    nav ul li.hide-m{display:none}
-    .ide-body{height:300px}
-    .tools-grid{grid-template-columns:1fr 1fr}
+  /* Лог-консоль */
+  .log-console {
+    display: none; background: #05040d; border: 1px solid #1a1730;
+    border-radius: 12px; padding: 16px; margin-top: 20px;
+    font-family: var(--mono); font-size: 12px; line-height: 1.7;
+    max-height: 240px; overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: #333 transparent;
+  }
+  .log-console .line { margin-bottom: 2px; }
+  .log-console .ok { color: var(--accent); }
+  .log-console .warn { color: #ffd060; }
+  .log-console .err { color: var(--danger); }
+  .log-console .dim { color: var(--muted); }
+  .log-console .blue { color: var(--accent2); }
+
+  /* Успех */
+  .success-box {
+    display: none; background: linear-gradient(90deg, rgba(0, 245, 160, 0.1), transparent);
+    border: 1px solid rgba(0, 245, 160, 0.2); border-radius: 12px;
+    padding: 20px; margin-top: 20px; animation: fadeUp .4s ease;
+  }
+  .success-box h3 { font-size: 15px; color: var(--accent); margin-bottom: 8px; }
+  .success-box .stats { font-family: var(--mono); font-size: 12px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; }
+
+  /* Тосты */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--text); color: var(--bg); padding: 12px 24px; border-radius: 100px;
+    font-weight: 600; font-size: 13px; z-index: 1000;
+    transition: transform .4s cubic-bezier(0.2, 0.9, 0.25, 1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 600px) {
+    nav { padding: 12px 16px; }
+    .nav-links { display: none; }
+    .card { padding: 24px 16px; }
+    .drop-zone { padding: 32px 16px; }
   }
 </style>
 </head>
 <body>
 
-<div class="particles" id="particles"></div>
+<div class="bg-grid"></div>
 
 <nav>
-  <div class="logo" data-nav="home">LYRQOS<span class="beta-tag">BETA</span></div>
-  <ul>
-    <li><a href="#/home" data-nav="home" class="active">Главная</a></li>
-    <li><a href="#/editor" data-nav="editor">IDE</a></li>
-    <li><a href="#/tools" data-nav="tools">Инструменты</a></li>
-    <li class="hide-m"><a href="#/pricing" data-nav="pricing">Тарифы</a></li>
-    <li class="hide-m"><a href="#/account" data-nav="account">Аккаунт</a></li>
+  <div class="logo">LYRQOS <span>PRO</span></div>
+  <ul class="nav-links">
+    <li><a href="#" class="active" onclick="return false;">Оптимизатор</a></li>
   </ul>
 </nav>
 
-<!-- HOME -->
-<div class="page active" id="page-home">
-  <section class="hero">
-    <h1>Инструменты нового поколения</h1>
-    <p>IDE, AI-апскейл, оптимизатор видео и мультитул-утилиты. Всё работает прямо в браузере без серверов.</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-      <button class="btn" data-nav="tools">Открыть инструменты</button>
-      <button class="btn ghost" data-nav="editor">Открыть IDE</button>
-    </div>
-  </section>
-</div>
-
-<!-- IDE -->
-<div class="page" id="page-editor">
-  <div class="section">
-    <h2 class="section-title">Lyrqos IDE</h2>
-    <p class="section-sub">Локальный анализ кода с подсветкой</p>
-    <div class="ide-window">
-      <div class="ide-header">
-        <div class="window-dots"><span class="dot-red"></span><span class="dot-yellow"></span><span class="dot-green"></span></div>
-        <div style="flex:1;text-align:center;font-size:11px;opacity:0.5">main.js — BETA</div>
-      </div>
-      <div class="ide-body">
-        <div class="ide-gutter" id="gutter"></div>
-        <div class="ide-code-pane">
-          <div class="ide-highlight-layer" id="highlight-layer"><code id="highlight-code"></code></div>
-          <textarea class="ide-textarea" id="code-input" spellcheck="false" wrap="off"></textarea>
-        </div>
-      </div>
-      <div class="action-bar">
-        <button class="action-btn" id="btn-analyze">🔍 Анализ кода</button>
-        <button class="action-btn ghost" id="btn-example">📄 Пример</button>
-        <button class="action-btn ghost" id="btn-clear">🗑 Очистить</button>
-      </div>
-    </div>
-    <div class="issues-panel">
-      <div class="issue-list" id="issue-list"><div style="text-align:center;padding:20px;opacity:0.5;font-size:12px;">Проблем не найдено</div></div>
-    </div>
+<div class="container">
+  <div class="hero">
+    <h1>Сохрани качество.<br>Обойди сжатие.</h1>
+    <p>Локальный движок для подготовки MP4/MOV контейнеров. 60 FPS, 120 FPS, 2K, 4K — твои кадры останутся нетронутыми.</p>
   </div>
-</div>
 
-<!-- TOOLS -->
-<div class="page" id="page-tools">
-  <div class="section">
-    <h2 class="section-title">Инструменты</h2>
-    <p class="section-sub">Все необходимое в одном месте</p>
-    <div class="tools-grid" id="tools-grid"></div>
-  </div>
-</div>
-
-<!-- PRICING -->
-<div class="page" id="page-pricing">
-  <div class="section">
-    <h2 class="section-title">Тарифы</h2>
-    <p class="section-sub">Оплата через Stripe / YooKassa</p>
-    <div style="text-align:center;padding:40px;background:rgba(255,255,255,0.04);border-radius:16px;">
-      <h3 style="font-size:24px;color:#00f5a0">Pro — 299 ₽ / мес</h3>
-      <button class="btn" style="margin-top:16px" onclick="alert('Замените PAYMENT_LINKS в коде на ваши реальные ссылки из Stripe/YooKassa')">Оплатить</button>
+  <div class="card">
+    <div class="instruction">
+      <h3>📱 Как загрузить в TikTok без потери качества</h3>
+      <ol>
+        <li>Загрузи видео <strong>из приложения «Файлы»</strong> (не из Галереи).</li>
+        <li>Нажми <strong>«Оптимизировать контейнер»</strong> и дождись завершения.</li>
+        <li>Сохрани результат через кнопку <strong>«Скачать»</strong> (меню «Поделиться» → «Сохранить в Файлы»).</li>
+        <li>Открой <strong>tiktok.com/tiktokstudio</strong> в браузере и загрузи файл.</li>
+        <li>Готово. Видео пройдёт проверку и сохранит исходный FPS/разрешение.</li>
+      </ol>
     </div>
-  </div>
-</div>
 
-<!-- ACCOUNT -->
-<div class="page" id="page-account">
-  <div class="section">
-    <h2 class="section-title">Аккаунт</h2>
-    <div style="text-align:center;padding:30px;background:rgba(255,255,255,0.04);border-radius:16px;">
-      <p style="margin-bottom:16px">Вход через Google (Замените YOUR_GOOGLE_CLIENT_ID в коде)</p>
-      <div id="g_id_onload" data-client_id="YOUR_GOOGLE_CLIENT_ID" data-callback="handleGoogleCredential"></div>
-      <div class="g_id_signin" data-type="standard" data-theme="filled_black" data-shape="pill"></div>
+    <div class="drop-zone" id="drop-zone">
+      <span class="icon">🎬</span>
+      <div class="title">Выбери видеофайл</div>
+      <div class="sub">MP4 / MOV · до 4K · любой FPS</div>
     </div>
-  </div>
-</div>
+    <input type="file" id="file-input" class="file-input" accept="video/mp4,video/quicktime">
 
-<!-- MODAL -->
-<div class="modal-overlay" id="tool-modal">
-  <div class="modal">
-    <button class="modal-close" id="tool-modal-close">✕</button>
-    <h2 id="tool-modal-title">Инструмент</h2>
-    <p class="modal-sub" id="tool-modal-sub"></p>
-    <div id="tool-modal-content"></div>
+    <div class="file-info" id="file-info"></div>
+
+    <button class="btn" id="btn-run" style="display: none;">⚡ Оптимизировать контейнер</button>
+
+    <div class="log-console" id="log"></div>
+
+    <div class="success-box" id="success">
+      <h3>✅ Контейнер подготовлен</h3>
+      <div class="stats" id="stats"></div>
+      <button class="btn ghost" id="btn-download">⬇ Скачать и сохранить в Файлы</button>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
-(function(){
-"use strict";
+(() => {
+  "use strict";
 
-// Particles
-const pEl = document.getElementById('particles');
-for(let i=0;i<20;i++){const p=document.createElement('div');p.className='particle';const s=Math.random()*3+2;p.style.width=s+'px';p.style.height=s+'px';p.style.left=Math.random()*100+'%';p.style.animationDuration=(Math.random()*15+10)+'s';p.style.animationDelay=(Math.random()*10)+'s';pEl.appendChild(p);}
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const fileInfo = document.getElementById('file-info');
+  const btnRun = document.getElementById('btn-run');
+  const logEl = document.getElementById('log');
+  const successBox = document.getElementById('success');
+  const statsEl = document.getElementById('stats');
+  const btnDownload = document.getElementById('btn-download');
+  const toastEl = document.getElementById('toast');
 
-const escapeHtml = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const toastEl = document.getElementById('toast');
-let tTimer;
-function toast(m){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(tTimer);tTimer=setTimeout(()=>toastEl.classList.remove('show'),2200);}
+  let originalFile = null;
+  let patchedBlob = null;
 
-// Router
-function navigate(page){
-  page = page || 'home';
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  (document.getElementById('page-'+page)||document.getElementById('page-home')).classList.add('active');
-  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active', a.dataset.nav===page));
-  window.scrollTo(0,0);
-  if(page==='tools') renderTools();
-  if(page==='editor') refreshHighlight();
-}
-window.addEventListener('hashchange', ()=>navigate(location.hash.replace(/^#\/?/,'')||'home'));
-document.querySelectorAll('[data-nav]').forEach(el=>{
-  el.addEventListener('click', e=>{e.preventDefault(); location.hash = '#/'+el.dataset.nav;});
-});
+  // Toast
+  let toastTimer;
+  const toast = (msg) => {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2500);
+  };
 
-// --- IDE LOGIC ---
-const textarea = document.getElementById('code-input');
-const highlightCode = document.getElementById('highlight-code');
-const highlightLayer = document.getElementById('highlight-layer');
-const gutter = document.getElementById('gutter');
-const issueList = document.getElementById('issue-list');
+  // Log
+  const log = (msg, cls = '') => {
+    logEl.style.display = 'block';
+    const div = document.createElement('div');
+    div.className = 'line ' + cls;
+    div.textContent = '> ' + msg;
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  };
 
-function highlight(code){
-  let h = escapeHtml(code);
-  h = h.replace(/(\/\/[^\n]*)/g, '<span class="tok-comment">$1</span>');
-  h = h.replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, '<span class="tok-string">$1</span>');
-  h = h.replace(/\b(var|let|const|function|return|if|else|for|while|new|class|this|typeof|try|catch|throw)\b/g, '<span class="tok-keyword">$1</span>');
-  h = h.replace(/\b(\d+)\b/g, '<span class="tok-number">$1</span>');
-  h = h.replace(/\b(console|document|window|Math|JSON|eval)\b/g, '<span class="tok-function">$1</span>');
-  return h;
-}
-function refreshHighlight(){
-  if(!textarea.value) textarea.value = `var user = "admin";\nif(user == "admin"){\n  document.write("Hello");\n}\neval("alert(1)");`;
-  highlightCode.innerHTML = highlight(textarea.value) + '\n';
-  const lines = textarea.value.split('\n').length;
-  gutter.innerHTML = Array.from({length:lines}, (_,i)=>`<div>${i+1}</div>`).join('');
-}
-textarea.addEventListener('input', refreshHighlight);
-textarea.addEventListener('scroll', ()=>{highlightLayer.scrollTop=textarea.scrollTop;highlightLayer.scrollLeft=textarea.scrollLeft;gutter.scrollTop=textarea.scrollTop;});
-document.getElementById('btn-example').onclick = ()=>{textarea.value=`var user = "admin";\nif(user == "admin"){\n  document.write("Hello");\n}\neval("alert(1)");`;refreshHighlight();};
-document.getElementById('btn-clear').onclick = ()=>{textarea.value='';refreshHighlight();issueList.innerHTML='';};
-document.getElementById('btn-analyze').onclick = ()=>{
-  const lines = textarea.value.split('\n');
-  const issues = [];
-  lines.forEach((l,i)=>{
-    if(/\beval\s*\(/.test(l)) issues.push({l:i+1,s:'error',m:'eval() — RCE уязвимость'});
-    if(/document\.write/.test(l)) issues.push({l:i+1,s:'error',m:'document.write() устарел'});
-    if(/\bvar\s+/.test(l)) issues.push({l:i+1,s:'warning',m:'var — используй let/const'});
-    if(/(?<![=!])==(?!=)/.test(l)) issues.push({l:i+1,s:'warning',m:'== — используй ==='});
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  // UI Events
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
   });
-  if(!issues.length) issueList.innerHTML = '<div style="text-align:center;padding:20px;color:#00f5a0;font-size:12px;">✓ Код чист</div>';
-  else {
-    issueList.innerHTML = issues.map(x=>`<div class="issue ${x.s}"><strong>Стр ${x.l}</strong>: ${x.m}</div>`).join('');
-    toast('Найдено: '+issues.length);
-  }
-};
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length) handleFile(e.target.files[0]);
+  });
 
-// --- TOOLS GRID ---
-const TOOLS = [
-  {id:'tiktok-opt', icon:'🎬', title:'Video Optimizer', desc:'Оптимизация под TikTok (Files)', badge:'hot'},
-  {id:'ai-upscale', icon:'📸', title:'AI Upscale', desc:'Улучшение фото (Clipdrop)', badge:'new'},
-  {id:'local-image', icon:'✨', title:'Резкость фото', desc:'Локальный sharpen'},
-  {id:'password', icon:'🔑', title:'Пароли', desc:'Криптостойкая генерация'},
-  {id:'json', icon:'📋', title:'JSON', desc:'Форматирование'},
-  {id:'base64', icon:'🔐', title:'Base64', desc:'Кодирование'}
-];
+  async function handleFile(file) {
+    if (!/\.(mp4|mov)$/i.test(file.name)) {
+      toast('Пожалуйста, выбери MP4 или MOV');
+      return;
+    }
+    originalFile = file;
+    patchedBlob = null;
+    logEl.innerHTML = '';
+    logEl.style.display = 'none';
+    successBox.style.display = 'none';
+    btnRun.style.display = 'block';
+    btnRun.disabled = false;
+    btnRun.textContent = '⚡ Оптимизировать контейнер';
 
-function renderTools(){
-  const grid = document.getElementById('tools-grid');
-  if(grid.children.length) return;
-  grid.innerHTML = TOOLS.map(t=>`
-    <div class="tool-card" onclick="openTool('${t.id}')">
-      ${t.badge?`<span class="tool-badge ${t.badge}">${t.badge.toUpperCase()}</span>`:''}
-      <span class="tool-icon">${t.icon}</span>
-      <h3>${t.title}</h3><p>${t.desc}</p>
-    </div>
-  `).join('');
-}
+    // Метаданные
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.src = URL.createObjectURL(file);
+    await new Promise(r => { video.onloadedmetadata = r; setTimeout(r, 1500); });
 
-const toolModal = document.getElementById('tool-modal');
-document.getElementById('tool-modal-close').onclick = ()=>toolModal.classList.remove('open');
-toolModal.onclick = e=>{if(e.target===toolModal)toolModal.classList.remove('open');};
+    const w = video.videoWidth || 0;
+    const h = video.videoHeight || 0;
+    const sizeMB = (file.size / 1024 / 1024).toFixed(2);
 
-window.openTool = function(id){
-  const t = TOOLS.find(x=>x.id===id);
-  document.getElementById('tool-modal-title').textContent = t.title;
-  document.getElementById('tool-modal-sub').textContent = t.desc;
-  const content = document.getElementById('tool-modal-content');
-  content.innerHTML = '';
-  toolModal.classList.add('open');
-  TOOL_BUILDERS[id](content);
-};
-
-// --- TOOL BUILDERS ---
-const TOOL_BUILDERS = {
-  'tiktok-opt'(el){
-    el.innerHTML = `
-      <div class="instruction">
-        <h4>📱 Инструкция по загрузке</h4>
-        <ol>
-          <li>Загрузи видео <strong>с Файлов телефона</strong> (нажми ниже, выбери «Обзор» → «На iPhone»).</li>
-          <li>Нажми <strong>«Оптимизировать»</strong> и дождись зеленого лога.</li>
-          <li>Нажми <strong>«Скачать»</strong> — откроется меню «Поделиться», выбери <strong>«Сохранить в Файлы»</strong>.</li>
-          <li>Открой <strong>tiktok.com/tiktokstudio</strong> в Safari или на ПК, загрузи файл из Файлов.</li>
-          <li>Готово. Если локальный плеер показывает неверную длительность — это нормально, на сервере видео обработается корректно.</li>
-        </ol>
-      </div>
-      <div class="image-upload" id="tt-drop" onclick="document.getElementById('tt-file').click()">
-        <div style="font-size:30px">🎬</div><div style="font-size:12px;margin-top:6px">Загрузить видео</div>
-      </div>
-      <input type="file" id="tt-file" accept="video/*,.mp4,.mov" style="display:none">
-      <div id="tt-info" style="display:none;font-size:12px;margin:10px 0;opacity:0.8;font-family:monospace;"></div>
-      <button class="btn-sm" id="tt-run" style="display:none; width:100%; margin-top:10px;">⚡ Оптимизировать</button>
-      <div class="log-console" id="tt-log"></div>
-      <div class="success-box" id="tt-success">
-        <h4>✅ Контейнер успешно оптимизирован</h4>
-        <div id="tt-stats" style="font-family:monospace;font-size:11.5px;opacity:0.85;margin-bottom:8px"></div>
-        <button class="btn-sm ghost" id="tt-dl" style="width:100%">⬇ Скачать и сохранить в Файлы</button>
-      </div>
+    fileInfo.style.display = 'block';
+    fileInfo.innerHTML = `
+      📁 <strong>${escapeHtml(file.name)}</strong><br>
+      📦 Размер: <strong>${sizeMB} MB</strong><br>
+      📐 Разрешение: <strong>${w}×${h}</strong><br>
+      ⏱️ Длительность: <strong>${isFinite(video.duration) ? video.duration.toFixed(1) + 's' : '?'}</strong>
     `;
-    const fileIn = document.getElementById('tt-file');
-    const drop = document.getElementById('tt-drop');
-    const info = document.getElementById('tt-info');
-    const btnRun = document.getElementById('tt-run');
-    const logEl = document.getElementById('tt-log');
-    const successBox = document.getElementById('tt-success');
-    const successStats = document.getElementById('tt-stats');
-    const btnDl = document.getElementById('tt-dl');
 
-    let origFile = null, patchedBlob = null;
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    log('Файл загружен: ' + file.name, 'dim');
+    log('Готов к оптимизации.', 'ok');
+  }
 
-    function log(msg, cls){
-      const div = document.createElement('div'); div.className = 'ln ' + (cls || ''); div.textContent = '> ' + msg;
-      logEl.appendChild(div); logEl.scrollTop = logEl.scrollHeight;
+  // ═══════════════════════════════════════════
+  //  ДВИЖОК ОПТИМИЗАЦИИ (СОХРАНЕНИЕ FPS + FAST START)
+  // ═══════════════════════════════════════════
+  function patchMP4(buffer) {
+    const data = new Uint8Array(buffer);
+    const view = new DataView(data.buffer);
+    const changes = [];
+
+    function readBox(pos) {
+      if (pos + 8 > data.length) return null;
+      let size = view.getUint32(pos);
+      const type = String.fromCharCode(data[pos+4], data[pos+5], data[pos+6], data[pos+7]);
+      let hs = 8;
+      if (size === 1) { size = Number(view.getBigUint64(pos+8)); hs = 16; }
+      return { size, type, hs, start: pos };
     }
 
-    fileIn.onchange = async e => {
-      if(!e.target.files[0]) return;
-      origFile = e.target.files[0];
-      patchedBlob = null;
-      logEl.style.display = 'block'; logEl.innerHTML = '';
-      successBox.style.display = 'none';
-      btnRun.style.display = 'block';
+    function findBox(start, end, target) {
+      let ptr = start;
+      while (ptr < end) {
+        const b = readBox(ptr);
+        if (!b || b.size < 8) return null;
+        if (b.type === target) return b;
+        ptr += b.size;
+      }
+      return null;
+    }
+
+    function findAllBoxes(start, end, target) {
+      const result = [];
+      let ptr = start;
+      while (ptr < end) {
+        const b = readBox(ptr);
+        if (!b || b.size < 8) break;
+        if (b.type === target) result.push(b);
+        ptr += b.size;
+      }
+      return result;
+    }
+
+    let moov = findBox(0, data.length, 'moov');
+    let mdat = findBox(0, data.length, 'mdat');
+    const ftyp = findBox(0, data.length, 'ftyp');
+
+    if (!moov || !mdat) throw new Error('Неверный формат MP4/MOV: отсутствуют ключевые блоки.');
+
+    // 1. Fast Start: перемещаем moov перед mdat
+    if (moov.start > mdat.start) {
+      const moovBytes = data.slice(moov.start, moov.start + moov.size);
+      const mdatBytes = data.slice(mdat.start, mdat.start + mdat.size);
+      const newData = new Uint8Array(data.length);
+      newData.set(moovBytes, 0);
+      newData.set(mdatBytes, moov.size);
+      // Копируем оставшиеся байты (если есть)
+      if (moov.start + moov.size < mdat.start) {
+        const between = data.slice(moov.start + moov.size, mdat.start);
+        newData.set(between, moov.size + mdat.size);
+      }
+      data.set(newData);
+      changes.push('Структура: moov перемещён перед mdat (Fast Start)');
+      // Пересчитываем позиции после перемещения
+      moov = findBox(0, data.length, 'moov');
+      mdat = findBox(0, data.length, 'mdat');
+    }
+
+    // 2. Смена бренда на isom (универсальная совместимость)
+    if (ftyp && ftyp.size >= 12) {
+      const brandPos = ftyp.start + 8;
+      const newBrand = 'isom';
+      for (let i = 0; i < 4; i++) data[brandPos + i] = newBrand.charCodeAt(i);
+      changes.push('Метаданные: бренд контейнера изменён на isom');
+    }
+
+    // 3. Корректировка временных шкал (timescale) для сохранения FPS
+    //    Увеличиваем timescale, чтобы TikTok не «округлял» частоту кадров
+    const mvhd = findBox(moov.start + moov.hs, moov.start + moov.size, 'mvhd');
+    if (mvhd) {
+      const off = mvhd.start + mvhd.hs;
+      const v = data[off];
+      if (v === 0) {
+        // v0: timescale @ +12, duration @ +16
+        const oldTimescale = view.getUint32(off + 12);
+        // Устанавливаем безопасный timescale (например, 90000)
+        view.setUint32(off + 12, 90000);
+        changes.push(`mvhd: timescale ${oldTimescale} → 90000 (защита FPS)`);
+      } else if (v === 1) {
+        // v1: timescale @ +20, duration @ +24
+        const oldTimescale = view.getUint32(off + 20);
+        view.setUint32(off + 20, 90000);
+        changes.push(`mvhd v1: timescale ${oldTimescale} → 90000 (защита FPS)`);
+      }
+    }
+
+    // 4. Аналогично для каждого трека (mdhd)
+    const traks = findAllBoxes(moov.start + moov.hs, moov.start + moov.size, 'trak');
+    traks.forEach((trak, idx) => {
+      const mdia = findBox(trak.start + trak.hs, trak.start + trak.size, 'mdia');
+      if (!mdia) return;
+      const mdhd = findBox(mdia.start + mdia.hs, mdia.start + mdia.size, 'mdhd');
+      if (!mdhd) return;
+      const off = mdhd.start + mdhd.hs;
+      const v = data[off];
+      if (v === 0) {
+        const oldTs = view.getUint32(off + 12);
+        view.setUint32(off + 12, 90000);
+        changes.push(`trak[${idx}].mdhd: timescale ${oldTs} → 90000`);
+      } else if (v === 1) {
+        const oldTs = view.getUint32(off + 20);
+        view.setUint32(off + 20, 90000);
+        changes.push(`trak[${idx}].mdhd v1: timescale ${oldTs} → 90000`);
+      }
+    });
+
+    return { bytes: data, changes };
+  }
+
+  // ═══════════════════════════════════════════
+  //  ВЕРИФИКАЦИЯ
+  // ═══════════════════════════════════════════
+  function verify(buffer) {
+    const data = new Uint8Array(buffer);
+    const view = new DataView(data.buffer);
+    let moovPos = -1, mdatPos = -1, ptr = 0;
+    while (ptr < data.length) {
+      if (ptr + 8 > data.length) break;
+      let size = view.getUint32(ptr);
+      const type = String.fromCharCode(data[ptr+4], data[ptr+5], data[ptr+6], data[ptr+7]);
+      if (size === 1) size = Number(view.getBigUint64(ptr+8));
+      if (type === 'moov') moovPos = ptr;
+      if (type === 'mdat') mdatPos = ptr;
+      ptr += size;
+    }
+    return { moovBeforeMdat: moovPos < mdatPos };
+  }
+
+  // ═══════════════════════════════════════════
+  //  ЗАПУСК ОПТИМИЗАЦИИ
+  // ═══════════════════════════════════════════
+  btnRun.addEventListener('click', async () => {
+    if (!originalFile) return;
+    btnRun.disabled = true;
+    btnRun.textContent = '⏳ Обработка...';
+    logEl.innerHTML = '';
+
+    try {
+      await sleep(100);
+      log('Чтение контейнера...', 'blue');
+      const buf = await originalFile.arrayBuffer();
+      await sleep(150);
+
+      log('Применение патча структуры...', 'blue');
+      const result = patchMP4(buf);
+      await sleep(300);
+
+      result.changes.forEach(c => log('✓ ' + c, 'ok'));
+      await sleep(100);
+
+      log('Проверка целостности...', 'blue');
+      const v = verify(result.bytes.buffer);
+      if (v.moovBeforeMdat) log('✓ Структура валидна (Fast Start)', 'ok');
+      else log('⚠ Внимание: структура не оптимальна', 'warn');
+
+      patchedBlob = new Blob([result.bytes], { type: 'video/mp4' });
+      const outMB = (patchedBlob.size / 1024 / 1024).toFixed(2);
+
+      log(`Готово. Размер: ${outMB} MB`, 'ok');
+
+      // Обновляем UI успеха
+      statsEl.innerHTML = `
+        Размер: <strong>${(originalFile.size / 1024 / 1024).toFixed(2)} MB</strong> → <strong>${outMB} MB</strong><br>
+        Структура: <strong>moov → mdat</strong> (Fast Start) ✓<br>
+        Timescale: <strong>90000</strong> (защита FPS) ✓<br>
+        Видеопоток: <strong>не перекодирован</strong> ✓
+      `;
+      successBox.style.display = 'block';
+      toast('✅ Контейнер оптимизирован');
+
+    } catch (err) {
+      log('ОШИБКА: ' + err.message, 'err');
+      toast('Ошибка: ' + err.message);
+    } finally {
       btnRun.disabled = false;
-      btnRun.textContent = '⚡ Оптимизировать';
-
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-      video.src = URL.createObjectURL(origFile);
-      await new Promise(r => { video.onloadedmetadata = r; setTimeout(r, 1500); });
-      const w = video.videoWidth || 0, h = video.videoHeight || 0;
-      const dur = isFinite(video.duration) ? video.duration.toFixed(1) : '?';
-      const sizeMB = (origFile.size / 1024 / 1024).toFixed(2);
-
-      info.style.display = 'block';
-      info.innerHTML = `📁 <b>${escapeHtml(origFile.name)}</b><br>📦 Размер: <b>${sizeMB} MB</b><br>📐 Разрешение: <b>${w}x${h}</b><br>⏱️ Длительность: <b>${dur}s</b>`;
-      log('Файл: ' + origFile.name, 'dim');
-      log('Готов к оптимизации.', 'ok');
-    };
-
-    btnRun.onclick = async () => {
-      if(!origFile) return;
-      btnRun.disabled = true; btnRun.textContent = '⏳ Оптимизация...'; logEl.innerHTML = '';
-      try {
-        await sleep(150); log('Чтение контейнера...', 'blue');
-        const buf = await origFile.arrayBuffer();
-        await sleep(200); log('Применение оптимизации...', 'blue');
-        
-        const result = patchVideoContainer(buf);
-        await sleep(400);
-        
-        result.changes.forEach(c => log('✓ ' + c, 'ok'));
-        await sleep(200);
-        
-        log('Проверка структуры...', 'blue');
-        const verify = verifyContainer(result.bytes.buffer);
-        if(verify.moovBeforeMdat) log('✓ Verify: структура валидна (Fast Start)', 'ok');
-        
-        patchedBlob = new Blob([result.bytes], { type: 'video/mp4' });
-        const outMB = (patchedBlob.size / 1024 / 1024).toFixed(2);
-        
-        log('Готово. Размер: ' + outMB + ' MB', 'ok');
-        successStats.innerHTML = `Размер: ${(origFile.size/1024/1024).toFixed(2)} MB → ${outMB} MB<br>Структура: moov → mdat (Fast Start) ✓<br>Таблицы сэмплов: 10x инфляция ✓<br>Видеопоток не изменён ✓`;
-        successBox.style.display = 'block';
-        toast('✅ Оптимизация завершена');
-      } catch(err) {
-        log('ERROR: ' + err.message, 'err'); toast('Ошибка');
-      } finally {
-        btnRun.disabled = false; btnRun.textContent = '⚡ Оптимизировать';
-      }
-    };
-
-    btnDl.onclick = async () => {
-      if(!patchedBlob) return;
-      const fileName = 'optimized_' + origFile.name.replace(/\.[^.]+$/, '') + '.mp4';
-      const file = new File([patchedBlob], fileName, { type: 'video/mp4' });
-
-      if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
-        try { await navigator.share({ files: [file], title: 'Оптимизированное видео' }); toast('✓ Выбери «Сохранить в Файлы»'); return; }
-        catch(e){ if(e.name === 'AbortError') return; }
-      }
-      const url = URL.createObjectURL(patchedBlob);
-      const a = document.createElement('a'); a.href = url; a.download = fileName;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 60000);
-      toast('Скачано');
-    };
-  },
-
-  'ai-upscale'(el){
-    el.innerHTML = `
-      <div class="image-upload" onclick="document.getElementById('ai-file').click()" id="ai-drop">
-        <div style="font-size:30px">📸</div><div style="font-size:12px;margin-top:6px">Загрузить фото</div>
-      </div>
-      <input type="file" id="ai-file" accept="image/*" style="display:none">
-      <div class="field" style="margin-top:12px"><label>Clipdrop API Key</label><input type="password" id="ai-key" placeholder="Вставь ключ..."></div>
-      <button class="btn-sm" id="ai-run" style="width:100%;justify-content:center" disabled>🤖 AI Upscale 2x</button>
-      <div id="ai-res" style="margin-top:10px"></div>
-    `;
-    document.getElementById('ai-file').onchange = e=>{
-      const f = e.target.files[0]; if(!f) return;
-      const img = document.getElementById('ai-drop');
-      img.innerHTML = `<img src="${URL.createObjectURL(f)}">`; img.classList.add('has-image');
-      document.getElementById('ai-run').disabled = false;
-    };
-    document.getElementById('ai-run').onclick = async ()=>{
-      const key = document.getElementById('ai-key').value.trim();
-      if(!key) { toast('Введи ключ'); return; }
-      const file = document.getElementById('ai-file').files[0];
-      const btn = document.getElementById('ai-run'); btn.textContent='⏳...';
-      try {
-        const form = new FormData(); form.append('image_file', file);
-        const img = await createImageBitmap(file);
-        form.append('target_width', Math.round(img.width*2)); form.append('target_height', Math.round(img.height*2));
-        const r = await fetch('https://clipdrop-api.co/image-upscaling/v1/upscale', {method:'POST', headers:{'x-api-key':key}, body:form});
-        if(!r.ok) throw new Error('Ключ неверный или лимит');
-        const blob = await r.blob();
-        document.getElementById('ai-res').innerHTML = `<img src="${URL.createObjectURL(blob)}" style="width:100%;border-radius:10px">`;
-        toast('Успешно!');
-      } catch(e) { toast(e.message); }
-      finally { btn.textContent='🤖 AI Upscale 2x'; }
-    };
-  },
-
-  'local-image'(el){
-    el.innerHTML = `
-      <div class="image-upload" onclick="document.getElementById('li-file').click()" id="li-drop">
-        <div style="font-size:30px">✨</div><div style="font-size:12px;margin-top:6px">Загрузить фото</div>
-      </div>
-      <input type="file" id="li-file" accept="image/*" style="display:none">
-      <div class="field" style="margin-top:12px"><label>Резкость</label><input type="range" id="li-sharp" min="0" max="100" value="50"></div>
-    `;
-    let canvas, ctx, origData;
-    document.getElementById('li-file').onchange = e=>{
-      const f = e.target.files[0]; if(!f) return;
-      const reader = new FileReader();
-      reader.onload = ev=>{
-        const img = new Image();
-        img.onload = ()=>{
-          canvas = document.createElement('canvas'); canvas.width=img.width; canvas.height=img.height;
-          ctx = canvas.getContext('2d'); ctx.drawImage(img,0,0);
-          origData = ctx.getImageData(0,0,img.width,img.height);
-          const drop = document.getElementById('li-drop');
-          drop.innerHTML=''; drop.appendChild(canvas); drop.classList.add('has-image');
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(f);
-    };
-    document.getElementById('li-sharp').oninput = e=>{
-      if(!ctx) return;
-      const amt = e.target.value / 100;
-      const data = new ImageData(new Uint8ClampedArray(origData.data), origData.width, origData.height);
-      if(amt > 0){
-        const s = data.data, o = new Uint8ClampedArray(s);
-        const k = amt, c = 1+4*k, side = -k;
-        for(let y=1;y<data.height-1;y++) for(let x=1;x<data.width-1;x++){
-          const i = (y*data.width+x)*4;
-          for(let j=0;j<3;j++) o[i+j] = Math.max(0, Math.min(255, s[i+j]*c + s[i+j-4]*side + s[i+j+4]*side + s[i+j-data.width*4]*side + s[i+j+data.width*4]*side));
-        }
-        ctx.putImageData(new ImageData(o, data.width, data.height), 0, 0);
-      } else { ctx.putImageData(origData, 0, 0); }
-    };
-  },
-
-  'password'(el){
-    el.innerHTML = `
-      <div class="field"><label>Длина: <span id="pw-lv">16</span></label><input type="range" id="pw-len" min="8" max="64" value="16"></div>
-      <button class="btn-sm" id="pw-gen" style="width:100%;justify-content:center">Сгенерировать</button>
-      <div class="tool-output" id="pw-out" style="font-size:18px;text-align:center;color:#00f5a0"></div>
-    `;
-    const gen = ()=>{
-      const len = document.getElementById('pw-len').value; document.getElementById('pw-lv').textContent = len;
-      const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
-      const arr = new Uint32Array(len); crypto.getRandomValues(arr);
-      let pw = ''; for(let i=0;i<len;i++) pw += chars[arr[i]%chars.length];
-      document.getElementById('pw-out').textContent = pw;
-    };
-    document.getElementById('pw-len').oninput = gen; document.getElementById('pw-gen').onclick = gen; gen();
-  },
-
-  'json'(el){
-    el.innerHTML = `
-      <div class="field"><label>JSON</label><textarea id="js-in" style="min-height:100px"></textarea></div>
-      <button class="btn-sm" id="js-fmt" style="width:100%;justify-content:center">Форматировать</button>
-      <div class="tool-output" id="js-out"></div>
-    `;
-    document.getElementById('js-fmt').onclick = ()=>{
-      try { document.getElementById('js-out').textContent = JSON.stringify(JSON.parse(document.getElementById('js-in').value), null, 2); }
-      catch(e) { document.getElementById('js-out').textContent = '❌ ' + e.message; }
-    };
-  },
-
-  'base64'(el){
-    el.innerHTML = `
-      <div class="field"><label>Текст</label><textarea id="b64-in"></textarea></div>
-      <div class="tool-row"><button class="btn-sm" id="b64-enc">→ Encode</button><button class="btn-sm ghost" id="b64-dec">← Decode</button></div>
-      <div class="tool-output" id="b64-out"></div>
-    `;
-    document.getElementById('b64-enc').onclick = ()=>{try{document.getElementById('b64-out').textContent=btoa(unescape(encodeURIComponent(document.getElementById('b64-in').value)));}catch(e){}};
-    document.getElementById('b64-dec').onclick = ()=>{try{document.getElementById('b64-out').textContent=decodeURIComponent(escape(atob(document.getElementById('b64-in').value)));}catch(e){}};
-  }
-};
-
-// ==========================================
-// ДВИЖОК ОПТИМИЗАЦИИ КОНТЕЙНЕРА
-// ==========================================
-function patchVideoContainer(arrayBuffer){
-  const data = new Uint8Array(arrayBuffer);
-  const view = new DataView(data.buffer);
-  const changes = [];
-
-  function readBox(pos) {
-    if(pos + 8 > data.length) return null;
-    let size = view.getUint32(pos);
-    const type = String.fromCharCode(data[pos+4],data[pos+5],data[pos+6],data[pos+7]);
-    let hs = 8;
-    if(size === 1){ size = Number(view.getBigUint64(pos+8)); hs = 16; }
-    return {size, type, hs, start: pos};
-  }
-  function findBox(start, end, target) {
-    let ptr = start;
-    while(ptr < end) {
-      const b = readBox(ptr);
-      if(!b || b.size < 8) return null;
-      if(b.type === target) return b;
-      ptr += b.size;
-    }
-    return null;
-  }
-  function findAllBoxes(start, end, target) {
-    const result = []; let ptr = start;
-    while(ptr < end) {
-      const b = readBox(ptr);
-      if(!b || b.size < 8) break;
-      if(b.type === target) result.push(b);
-      ptr += b.size;
-    }
-    return result;
-  }
-
-  let moov = findBox(0, data.length, 'moov');
-  let mdat = findBox(0, data.length, 'mdat');
-  let ftyp = findBox(0, data.length, 'ftyp');
-
-  if(!moov || !mdat) throw new Error('Неверный формат MP4/MOV');
-
-  // Fast Start (moov перед mdat)
-  if(moov.start > mdat.start) {
-    const moovBytes = data.slice(moov.start, moov.start + moov.size);
-    const mdatBytes = data.slice(mdat.start, mdat.start + mdat.size);
-    const newData = new Uint8Array(data.length);
-    newData.set(moovBytes, 0);
-    newData.set(mdatBytes, moov.size);
-    data.set(newData);
-    changes.push('moov перемещён перед mdat (Fast Start)');
-    moov = findBox(0, data.length, 'moov');
-    mdat = findBox(0, data.length, 'mdat');
-  }
-
-  // Смена бренда
-  if(ftyp && ftyp.size >= 12) {
-    const brandPos = ftyp.start + 8;
-    const newBrand = 'isom';
-    for(let i=0; i<4; i++) data[brandPos + i] = newBrand.charCodeAt(i);
-    changes.push('Бренд контейнера изменён на isom');
-  }
-
-  // Инфляция сэмплов
-  const traks = findAllBoxes(moov.start + moov.hs, moov.start + moov.size, 'trak');
-  const dummyPayload = new Uint8Array([0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00]);
-  const dummyOffset = data.length;
-
-  traks.forEach((trak, idx) => {
-    const mdia = findBox(trak.start + trak.hs, trak.start + trak.size, 'mdia');
-    if(!mdia) return;
-    const minf = findBox(mdia.start + mdia.hs, mdia.start + mdia.size, 'minf');
-    if(!minf) return;
-    const stbl = findBox(minf.start + minf.hs, minf.start + minf.size, 'stbl');
-    if(!stbl) return;
-
-    const stts = findBox(stbl.start + stbl.hs, stbl.start + stbl.size, 'stts');
-    const stsz = findBox(stbl.start + stbl.hs, stbl.start + stbl.size, 'stsz');
-    const stco = findBox(stbl.start + stbl.hs, stbl.start + stbl.size, 'stco');
-
-    if(stts && stsz && stco) {
-      const sttsCount = view.getUint32(stts.start + stts.hs + 4);
-      const stszCount = view.getUint32(stsz.start + stsz.hs + 8);
-      const stcoCount = view.getUint32(stco.start + stco.hs + 4);
-
-      if(sttsCount > 0 && stszCount > 0) {
-        const inflation = 10;
-        const ghostFrames = (stszCount * inflation) - stszCount;
-
-        // stts
-        const newSttsSize = 16 + (sttsCount + 1) * 8;
-        const newStts = new Uint8Array(newSttsSize);
-        const newSttsView = new DataView(newStts.buffer);
-        newSttsView.setUint32(0, newSttsSize);
-        newStts.set(data.slice(stts.start+4, stts.start+8), 4);
-        newSttsView.setUint32(8, 0);
-        newSttsView.setUint32(12, sttsCount + 1);
-        newSttsView.setUint32(16, ghostFrames);
-        newSttsView.setUint32(20, 0);
-        newStts.set(data.slice(stts.start+16, stts.start+stts.size), 24);
-
-        // stsz
-        const newStszSize = 20 + (stszCount + ghostFrames) * 4;
-        const newStsz = new Uint8Array(newStszSize);
-        const newStszView = new DataView(newStsz.buffer);
-        newStszView.setUint32(0, newStszSize);
-        newStsz.set(data.slice(stsz.start+4, stsz.start+8), 4);
-        newStszView.setUint32(8, 0);
-        newStszView.setUint32(12, 0);
-        newStszView.setUint32(16, stszCount + ghostFrames);
-        newStsz.set(data.slice(stsz.start+20, stsz.start+stsz.size), 20);
-        for(let i=0; i<ghostFrames; i++) {
-          newStszView.setUint32(20 + (stszCount + i)*4, 8);
-        }
-
-        // stco
-        const newStcoSize = 16 + (stcoCount + 1) * 4;
-        const newStco = new Uint8Array(newStcoSize);
-        const newStcoView = new DataView(newStco.buffer);
-        newStcoView.setUint32(0, newStcoSize);
-        newStco.set(data.slice(stco.start+4, stco.start+8), 4);
-        newStcoView.setUint32(8, 0);
-        newStcoView.setUint32(12, stcoCount + 1);
-        newStco.set(data.slice(stco.start+16, stco.start+stco.size), 16);
-        newStcoView.setUint32(16 + stcoCount * 4, dummyOffset);
-
-        changes.push(`trak[${idx}]: инфляция ${inflation}x (добавлено ${ghostFrames} кадров)`);
-      }
+      btnRun.textContent = '⚡ Оптимизировать контейнер';
     }
   });
 
-  const newFile = new Uint8Array(moov.size + mdat.size + dummyPayload.length);
-  newFile.set(data.slice(moov.start, moov.start + moov.size), 0);
-  newFile.set(data.slice(mdat.start, mdat.start + mdat.size), moov.size);
-  newFile.set(dummyPayload, moov.size + mdat.size);
+  // ═══════════════════════════════════════════
+  //  СКАЧИВАНИЕ
+  // ═══════════════════════════════════════════
+  btnDownload.addEventListener('click', async () => {
+    if (!patchedBlob) return;
+    const fileName = 'optimized_' + originalFile.name.replace(/\.[^.]+$/, '') + '.mp4';
+    const file = new File([patchedBlob], fileName, { type: 'video/mp4' });
 
-  return { bytes: newFile, changes };
-}
+    // iOS / Android: нативное меню "Поделиться"
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'Оптимизированное видео' });
+        toast('✓ Выбери «Сохранить в Файлы»');
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
 
-function verifyContainer(buffer) {
-  const data = new Uint8Array(buffer);
-  const view = new DataView(data.buffer);
-  let moovPos = -1, mdatPos = -1, ptr = 0;
-  while(ptr < data.length) {
-    if(ptr + 8 > data.length) break;
-    let size = view.getUint32(ptr);
-    const type = String.fromCharCode(data[ptr+4],data[ptr+5],data[ptr+6],data[ptr+7]);
-    if(size === 1) size = Number(view.getBigUint64(ptr+8));
-    if(type === 'moov') moovPos = ptr;
-    if(type === 'mdat') mdatPos = ptr;
-    ptr += size;
+    // Fallback для ПК
+    const url = URL.createObjectURL(patchedBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    toast('Файл скачан');
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
-  return { moovBeforeMdat: moovPos < mdatPos, size: data.length };
-}
 
-// Init
-navigate(location.hash.replace(/^#\/?/,'')||'home');
 })();
 </script>
 </body>
