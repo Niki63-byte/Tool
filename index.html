@@ -2,207 +2,287 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lyrqos — Video Optimizer Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lyrqos — Video Engine Pro</title>
 <style>
   :root {
-    --bg: #0a0818;
-    --surface: rgba(255, 255, 255, 0.03);
-    --border: rgba(255, 255, 255, 0.08);
-    --text: #f0eee6;
-    --muted: #7a7570;
-    --accent: #00f5a0;
-    --accent2: #00d9f5;
-    --purple: #a855f7;
-    --danger: #ff5050;
-    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    --mono: 'SF Mono', 'Fira Code', Consolas, monospace;
+    --bg: #030308;
+    --surface: rgba(15, 15, 25, 0.6);
+    --border: rgba(0, 245, 160, 0.15);
+    --text: #ffffff;
+    --muted: #8e8e9f;
+    --accent: #00ff88;
+    --accent-glow: rgba(0, 255, 136, 0.4);
+    --accent2: #00e5ff;
+    --danger: #ff3366;
+    --warning: #ffbb00;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
   }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  
   body {
     font-family: var(--font);
-    background: radial-gradient(circle at 10% 20%, rgba(0, 245, 160, 0.05), transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.05), transparent 40%),
-                var(--bg);
+    background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
-    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
-  a { color: inherit; text-decoration: none; }
-  button { font-family: inherit; border: none; cursor: pointer; background: none; color: inherit; }
 
-  /* Анимированный фон */
+  /* Анимированный фон с пятнами */
+  .bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    z-index: -1;
+    opacity: 0.4;
+    animation: float 10s infinite alternate;
+  }
+  .orb-1 { width: 300px; height: 300px; background: #00ff88; top: -100px; left: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: #00e5ff; bottom: -150px; right: -100px; animation-delay: -5s; }
+  .orb-3 { width: 250px; height: 250px; background: #7000ff; top: 40%; left: 60%; animation-delay: -2s; }
+
+  @keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, 50px) scale(1.1); }
+  }
+
+  /* Сетка поверх фона */
   .bg-grid {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-    background-size: 50px 50px;
-    mask-image: radial-gradient(circle at center, black, transparent 80%);
-    -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%);
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: 
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(circle at center, black, transparent 90%);
+    -webkit-mask-image: radial-gradient(circle at center, black, transparent 90%);
   }
 
   /* Навигация */
   nav {
     position: sticky; top: 0; z-index: 100;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 16px 32px;
-    background: rgba(10, 8, 24, 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    background: rgba(3, 3, 8, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
   }
   .logo {
-    font-size: 20px; font-weight: 800; letter-spacing: 1px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-size: 18px; font-weight: 900; letter-spacing: 2px;
     display: flex; align-items: center; gap: 8px;
   }
   .logo span {
-    font-size: 9px; padding: 2px 6px; border-radius: 4px;
-    background: rgba(255, 200, 50, 0.15); color: #ffd060;
-    border: 1px solid rgba(255, 200, 50, 0.3);
-    letter-spacing: 1px; -webkit-text-fill-color: #ffd060;
+    font-size: 10px; padding: 2px 6px; border-radius: 4px;
+    background: rgba(255, 187, 0, 0.15); color: var(--warning);
+    border: 1px solid rgba(255, 187, 0, 0.3);
+    letter-spacing: 1px;
   }
   .nav-links { display: flex; gap: 8px; list-style: none; }
   .nav-links a {
     padding: 8px 16px; border-radius: 100px; font-size: 13px;
-    color: var(--muted); transition: .3s; cursor: pointer;
+    color: var(--muted); transition: .3s; cursor: pointer; font-weight: 500;
   }
-  .nav-links a.active { color: var(--bg); background: linear-gradient(90deg, var(--accent), var(--accent2)); font-weight: 600; }
+  .nav-links a.active { 
+    color: #000; background: var(--accent); font-weight: 700;
+    box-shadow: 0 0 15px var(--accent-glow);
+  }
 
   /* Контейнер */
-  .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; position: relative; z-index: 1; }
+  .container { max-width: 600px; margin: 0 auto; padding: 40px 16px; position: relative; z-index: 1; }
 
   /* Hero */
-  .hero { text-align: center; margin-bottom: 48px; animation: fadeUp .8s ease; }
+  .hero { text-align: center; margin-bottom: 32px; animation: fadeUp .6s ease; }
   .hero h1 {
-    font-size: clamp(32px, 6vw, 56px); font-weight: 800; line-height: 1.1;
-    background: linear-gradient(135deg, #fff 30%, var(--accent));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 16px;
+    font-size: clamp(28px, 6vw, 42px); font-weight: 800; line-height: 1.2;
+    margin-bottom: 12px; letter-spacing: -1px;
   }
-  .hero p { font-size: 16px; color: var(--muted); max-width: 600px; margin: 0 auto; }
+  .hero h1 span {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p { font-size: 14px; color: var(--muted); max-width: 400px; margin: 0 auto; line-height: 1.5; }
 
-  /* Карточки */
+  /* Карточка */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 32px;
-    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
     margin-bottom: 24px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    transition: transform .3s ease, border-color .3s ease;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp .8s ease;
   }
-  .card:hover { border-color: rgba(0, 245, 160, 0.3); transform: translateY(-2px); }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+
+  /* Предупреждение */
+  .warning-box {
+    background: linear-gradient(90deg, rgba(255, 187, 0, 0.1), rgba(255, 187, 0, 0.02));
+    border: 1px solid rgba(255, 187, 0, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .warning-box .icon {
+    font-size: 20px;
+    animation: pulse 2s infinite;
+  }
+  .warning-box .text {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #ffeeba;
+  }
+  .warning-box strong { color: var(--warning); display: block; margin-bottom: 4px; font-size: 13px;}
 
   /* Инструкция */
-  .instruction {
-    background: linear-gradient(90deg, rgba(255, 200, 50, 0.06), transparent);
-    border-left: 3px solid #ffd060;
-    padding: 20px 24px; border-radius: 0 12px 12px 0;
-    margin-bottom: 32px;
-  }
-  .instruction h3 { font-size: 14px; color: #ffd060; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-  .instruction ol { padding-left: 20px; font-size: 13px; color: var(--muted); line-height: 1.8; }
+  .instruction { margin-bottom: 24px; }
+  .instruction h3 { font-size: 14px; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .instruction ol { padding-left: 20px; font-size: 12.5px; color: var(--muted); line-height: 1.8; }
   .instruction strong { color: var(--text); }
 
   /* Загрузка файла */
   .drop-zone {
-    border: 2px dashed rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 48px 24px;
+    border: 2px dashed rgba(255,255,255,0.15);
+    border-radius: 20px;
+    padding: 40px 20px;
     text-align: center;
     cursor: pointer;
     transition: all .3s ease;
-    background: rgba(255,255,255,0.01);
+    background: rgba(255,255,255,0.02);
     position: relative;
   }
   .drop-zone:hover, .drop-zone.dragover {
     border-color: var(--accent);
-    background: rgba(0, 245, 160, 0.05);
+    background: rgba(0, 255, 136, 0.05);
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.1) inset;
   }
-  .drop-zone .icon { font-size: 48px; margin-bottom: 12px; display: block; }
-  .drop-zone .title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-  .drop-zone .sub { font-size: 12px; color: var(--muted); }
+  .drop-zone .icon { font-size: 40px; margin-bottom: 12px; display: block; }
+  .drop-zone .title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .drop-zone .sub { font-size: 11px; color: var(--muted); }
   .file-input { display: none; }
 
   /* Инфо о файле */
   .file-info {
-    display: none; background: rgba(0,0,0,0.3); border-radius: 12px;
-    padding: 16px 20px; margin-top: 20px; font-family: var(--mono); font-size: 13px;
-    line-height: 1.8; color: #b8ffd8; word-break: break-all;
+    display: none; 
+    background: rgba(0,0,0,0.4); 
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 16px; 
+    margin-top: 16px; 
+    font-family: var(--mono); 
+    font-size: 12px;
+    line-height: 1.8; 
+    color: #ccc; 
+    word-break: break-all;
   }
   .file-info strong { color: var(--accent); }
+  .file-info .row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; margin-bottom: 4px;}
+  .file-info .row:last-child { border: none; margin: 0; padding: 0; }
 
   /* Кнопки */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; padding: 16px; border-radius: 12px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    color: #0a0818; font-weight: 700; font-size: 15px;
+    width: 100%; padding: 16px; border-radius: 14px;
+    background: var(--accent);
+    color: #000; font-weight: 800; font-size: 15px;
     transition: all .3s ease; margin-top: 16px;
-    box-shadow: 0 4px 20px rgba(0, 245, 160, 0.2);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    text-transform: uppercase; letter-spacing: 1px;
   }
   .btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 245, 160, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.5);
+    background: #00ff95;
   }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(1); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); box-shadow: none; }
   .btn.ghost {
     background: transparent; color: var(--text);
-    border: 1px solid var(--border); box-shadow: none;
+    border: 1px solid rgba(255,255,255,0.2); box-shadow: none;
   }
   .btn.ghost:hover { background: rgba(255,255,255,0.05); border-color: var(--text); }
 
   /* Лог-консоль */
   .log-console {
-    display: none; background: #05040d; border: 1px solid #1a1730;
+    display: none; background: #000; border: 1px solid rgba(0,255,136,0.2);
     border-radius: 12px; padding: 16px; margin-top: 20px;
-    font-family: var(--mono); font-size: 12px; line-height: 1.7;
-    max-height: 240px; overflow-y: auto;
-    scrollbar-width: thin; scrollbar-color: #333 transparent;
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.6;
+    max-height: 220px; overflow-y: auto;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    position: relative;
   }
-  .log-console .line { margin-bottom: 2px; }
-  .log-console .ok { color: var(--accent); }
-  .log-console .warn { color: #ffd060; }
+  .log-console::after {
+    content: '█'; color: var(--accent); animation: blink 1s step-end infinite;
+    position: absolute; bottom: 16px; left: 16px; display: none;
+  }
+  .log-console.typing::after { display: inline; }
+  .log-console .line { margin-bottom: 2px; animation: typeIn .1s ease; }
+  .log-console .ok { color: var(--accent); text-shadow: 0 0 5px rgba(0,255,136,0.5); }
+  .log-console .warn { color: var(--warning); }
   .log-console .err { color: var(--danger); }
-  .log-console .dim { color: var(--muted); }
-  .log-console .blue { color: var(--accent2); }
+  .log-console .dim { color: #666; }
+  .log-console .blue { color: var(--accent2); text-shadow: 0 0 5px rgba(0,229,255,0.5); }
+
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes typeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
 
   /* Успех */
   .success-box {
-    display: none; background: linear-gradient(90deg, rgba(0, 245, 160, 0.1), transparent);
-    border: 1px solid rgba(0, 245, 160, 0.2); border-radius: 12px;
-    padding: 20px; margin-top: 20px; animation: fadeUp .4s ease;
+    display: none; 
+    background: linear-gradient(180deg, rgba(0, 255, 136, 0.1), transparent);
+    border: 1px solid rgba(0, 255, 136, 0.3); 
+    border-radius: 16px;
+    padding: 20px; 
+    margin-top: 20px; 
+    animation: fadeUp .4s ease;
   }
-  .success-box h3 { font-size: 15px; color: var(--accent); margin-bottom: 8px; }
-  .success-box .stats { font-family: var(--mono); font-size: 12px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; }
+  .success-box h3 { font-size: 16px; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+  .success-box .stats { 
+    font-family: var(--mono); font-size: 11.5px; color: var(--muted); 
+    line-height: 1.8; margin-bottom: 16px; background: rgba(0,0,0,0.3);
+    padding: 12px; border-radius: 8px;
+  }
+  .success-box .stats span { color: var(--accent); }
 
   /* Тосты */
   .toast {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-    background: var(--text); color: var(--bg); padding: 12px 24px; border-radius: 100px;
-    font-weight: 600; font-size: 13px; z-index: 1000;
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: #fff; color: #000; padding: 12px 24px; border-radius: 100px;
+    font-weight: 700; font-size: 13px; z-index: 1000;
     transition: transform .4s cubic-bezier(0.2, 0.9, 0.25, 1);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: none;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
   @media (max-width: 600px) {
     nav { padding: 12px 16px; }
     .nav-links { display: none; }
-    .card { padding: 24px 16px; }
-    .drop-zone { padding: 32px 16px; }
+    .card { padding: 20px 16px; }
+    .drop-zone { padding: 30px 16px; }
   }
 </style>
 </head>
 <body>
 
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+<div class="bg-orb orb-3"></div>
 <div class="bg-grid"></div>
 
 <nav>
@@ -214,39 +294,46 @@
 
 <div class="container">
   <div class="hero">
-    <h1>Сохрани качество.<br>Обойди сжатие.</h1>
-    <p>Локальный движок для подготовки MP4/MOV контейнеров. 60 FPS, 120 FPS, 2K, 4K — твои кадры останутся нетронутыми.</p>
+    <h1>Сохрани <span>качество.</span></h1>
+    <p>Движок для подготовки контейнеров. Инфляция сэмплов и защита FPS.</p>
   </div>
 
   <div class="card">
+    <div class="warning-box">
+      <div class="icon">⚠️</div>
+      <div class="text">
+        <strong>Внимание</strong>
+        Инфляция сэмплов — тяжелая операция. На больших 4K видео браузер телефона может не справиться. Если скрипт выдаст ошибку, значит файл слишком сложный, и нужно применить метод Padding (он сработает автоматически).
+      </div>
+    </div>
+
     <div class="instruction">
-      <h3>📱 Как загрузить в TikTok без потери качества</h3>
+      <h3>📱 Инструкция</h3>
       <ol>
-        <li>Загрузи видео <strong>из приложения «Файлы»</strong> (не из Галереи).</li>
-        <li>Нажми <strong>«Оптимизировать контейнер»</strong> и дождись завершения.</li>
-        <li>Сохрани результат через кнопку <strong>«Скачать»</strong> (меню «Поделиться» → «Сохранить в Файлы»).</li>
-        <li>Открой <strong>tiktok.com/tiktokstudio</strong> в браузере и загрузи файл.</li>
-        <li>Готово. Видео пройдёт проверку и сохранит исходный FPS/разрешение.</li>
+        <li>Загрузи видео <strong>из «Файлов»</strong>.</li>
+        <li>Нажми <strong>«Оптимизировать»</strong>.</li>
+        <li>Сохрани через меню <strong>«Поделиться» → «Сохранить в Файлы»</strong>.</li>
+        <li>Выложи файл на <strong>tiktok.com/tiktokstudio</strong> через браузер.</li>
       </ol>
     </div>
 
     <div class="drop-zone" id="drop-zone">
       <span class="icon">🎬</span>
       <div class="title">Выбери видеофайл</div>
-      <div class="sub">MP4 / MOV · до 4K · любой FPS</div>
+      <div class="sub">MP4 / MOV · 4K · 60 FPS</div>
     </div>
     <input type="file" id="file-input" class="file-input" accept="video/mp4,video/quicktime">
 
     <div class="file-info" id="file-info"></div>
 
-    <button class="btn" id="btn-run" style="display: none;">⚡ Оптимизировать контейнер</button>
+    <button class="btn" id="btn-run" style="display: none;">⚡ Оптимизировать</button>
 
     <div class="log-console" id="log"></div>
 
     <div class="success-box" id="success">
-      <h3>✅ Контейнер подготовлен</h3>
+      <h3>✅ Готово</h3>
       <div class="stats" id="stats"></div>
-      <button class="btn ghost" id="btn-download">⬇ Скачать и сохранить в Файлы</button>
+      <button class="btn ghost" id="btn-download">⬇ Скачать в Файлы</button>
     </div>
   </div>
 </div>
@@ -280,6 +367,7 @@
 
   const log = (msg, cls = '') => {
     logEl.style.display = 'block';
+    logEl.classList.add('typing');
     const div = document.createElement('div');
     div.className = 'line ' + cls;
     div.textContent = '> ' + msg;
@@ -289,6 +377,7 @@
 
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
+  // UI Events
   dropZone.addEventListener('click', () => fileInput.click());
   dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
@@ -313,7 +402,7 @@
     successBox.style.display = 'none';
     btnRun.style.display = 'block';
     btnRun.disabled = false;
-    btnRun.textContent = '⚡ Оптимизировать контейнер';
+    btnRun.textContent = '⚡ Оптимизировать';
 
     const video = document.createElement('video');
     video.preload = 'metadata';
@@ -328,15 +417,15 @@
     const h = video.videoHeight || 0;
     const sizeMB = (file.size / 1024 / 1024).toFixed(2);
 
-    const resStr = (w > 0 && h > 0) ? `${w}×${h}` : 'Исходное (не определено)';
+    const resStr = (w > 0 && h > 0) ? `${w}×${h}` : 'Исходное';
     const durStr = (isFinite(video.duration) && video.duration > 0) ? `${video.duration.toFixed(1)}s` : 'Исходная';
 
     fileInfo.style.display = 'block';
     fileInfo.innerHTML = `
-      📁 <strong>${escapeHtml(file.name)}</strong><br>
-      📦 Размер: <strong>${sizeMB} MB</strong><br>
-      📐 Разрешение: <strong>${resStr}</strong><br>
-      ⏱️ Длительность: <strong>${durStr}</strong>
+      <div class="row"><span>📁 Имя:</span> <strong>${escapeHtml(file.name)}</strong></div>
+      <div class="row"><span>📦 Размер:</span> <strong>${sizeMB} MB</strong></div>
+      <div class="row"><span>📐 Разрешение:</span> <strong>${resStr}</strong></div>
+      <div class="row"><span>⏱️ Длительность:</span> <strong>${durStr}</strong></div>
     `;
 
     log('Файл загружен: ' + file.name, 'dim');
@@ -344,17 +433,18 @@
   }
 
   // ═══════════════════════════════════════════
-  //  БЕЗОПАСНЫЙ ДВИЖОК (БЕЗ ЗАВИСАНИЙ)
+  //  ЯДРО (ПОПЫТКА ИНФЛЯЦИИ + БЕЗОПАСНЫЙ PADDING)
   // ═══════════════════════════════════════════
-  function patchMP4(buffer) {
+  function optimizeVideo(buffer) {
     const data = new Uint8Array(buffer);
     const view = new DataView(data.buffer);
     const changes = [];
+    let inflated = false;
 
     function readBox(pos) {
       if (pos + 8 > data.length) return null;
       let size = view.getUint32(pos);
-      if (size < 8) return null; 
+      if (size < 8) return null;
       const type = String.fromCharCode(data[pos+4], data[pos+5], data[pos+6], data[pos+7]);
       let hs = 8;
       if (size === 1) { 
@@ -378,89 +468,99 @@
       return null;
     }
 
-    function findAllBoxes(start, end, target) {
-      const result = [];
-      let ptr = start;
-      while (ptr < end && ptr < data.length) {
+    const moov = findBox(0, data.length, 'moov');
+    if (!moov) throw new Error('Неверный формат (moov не найден).');
+
+    // 1. Попытка инфляции таблиц (Ghost Frames)
+    try {
+      const traks = [];
+      let ptr = moov.start + moov.hs;
+      while (ptr < moov.start + moov.size && ptr < data.length) {
         const b = readBox(ptr);
         if (!b) break;
-        if (b.type === target) result.push(b);
+        if (b.type === 'trak') traks.push(b);
         ptr += b.size;
       }
-      return result;
-    }
 
-    const moov = findBox(0, data.length, 'moov');
-    if (!moov) throw new Error('Неверный формат MP4/MOV (moov не найден).');
+      traks.forEach((trak, idx) => {
+        const mdia = findBox(trak.start + trak.hs, trak.start + trak.size, 'mdia');
+        if (!mdia) return;
+        const minf = findBox(mdia.start + mdia.hs, mdia.start + mdia.size, 'minf');
+        if (!minf) return;
+        const stbl = findBox(minf.start + minf.hs, minf.start + minf.size, 'stbl');
+        if (!stbl) return;
 
-    // 1. Обнуление mvhd
-    const mvhd = findBox(moov.start + moov.hs, moov.start + moov.size, 'mvhd');
-    if (mvhd) {
-      const off = mvhd.start + mvhd.hs;
-      if (off < data.length) {
-        const v = data[off];
-        if (v === 0 && off + 20 <= data.length) {
-          view.setUint32(off + 16, 0);
-          changes.push('mvhd v0: duration обнулён');
-        } else if (v === 1 && off + 32 <= data.length) {
-          view.setBigUint64(off + 24, 0n);
-          changes.push('mvhd v1: duration обнулён');
-        }
-      }
-    }
-
-    // 2. Обнуление tkhd и mdhd
-    const traks = findAllBoxes(moov.start + moov.hs, moov.start + moov.size, 'trak');
-    traks.forEach((trak, idx) => {
-      const tkhd = findBox(trak.start + trak.hs, trak.start + trak.size, 'tkhd');
-      if (tkhd) {
-        const off = tkhd.start + tkhd.hs;
-        if (off < data.length) {
-          const v = data[off];
-          if (v === 0 && off + 24 <= data.length) {
-            view.setUint32(off + 20, 0);
-            changes.push(`trak[${idx}].tkhd v0: duration обнулён`);
-          } else if (v === 1 && off + 36 <= data.length) {
-            view.setBigUint64(off + 28, 0n);
-            changes.push(`trak[${idx}].tkhd v1: duration обнулён`);
-          }
-        }
-      }
-
-      const mdia = findBox(trak.start + trak.hs, trak.start + trak.size, 'mdia');
-      if (mdia) {
-        const mdhd = findBox(mdia.start + mdia.hs, mdia.start + mdia.size, 'mdhd');
-        if (mdhd) {
-          const off = mdhd.start + mdhd.hs;
-          if (off < data.length) {
-            const v = data[off];
-            if (v === 0 && off + 20 <= data.length) {
-              view.setUint32(off + 16, 0);
-              changes.push(`trak[${idx}].mdhd v0: duration обнулён`);
-            } else if (v === 1 && off + 32 <= data.length) {
-              view.setBigUint64(off + 24, 0n);
-              changes.push(`trak[${idx}].mdhd v1: duration обнулён`);
+        const stsz = findBox(stbl.start + stbl.hs, stbl.start + stbl.size, 'stsz');
+        if (stsz) {
+          const stszSampleSize = view.getUint32(stsz.start + stsz.hs + 4);
+          const stszCount = view.getUint32(stsz.start + stsz.hs + 8);
+          
+          // Если размеры сэмплов переменные и их много
+          if (stszSampleSize === 0 && stszCount > 0 && stszCount < 50000) {
+            // Мы не будем физически менять размер блока (это сломает офсеты),
+            // но мы можем "раздуть" значения размеров, если они не максимальные.
+            // Это безопаснее, чем пересборка moov.
+            let inflatedCount = 0;
+            for (let i = 0; i < stszCount; i++) {
+              const sizeOff = stsz.start + stsz.hs + 12 + i * 4;
+              if (sizeOff + 4 <= data.length) {
+                const originalSize = view.getUint32(sizeOff);
+                if (originalSize > 0) {
+                  // Искусственно увеличиваем размер сэмпла (сбиваем битрейт)
+                  view.setUint32(sizeOff, originalSize * 2); 
+                  inflatedCount++;
+                }
+              }
+            }
+            if (inflatedCount > 0) {
+              changes.push(`trak[${idx}]: stsz размеры раздуты x2 (${inflatedCount} шт)`);
+              inflated = true;
             }
           }
         }
-      }
-    });
+      });
+    } catch (e) {
+      changes.push('Инфляция не удалась (сложная структура), применяю Padding.');
+    }
 
-    // 3. Padding (изменение хеша)
-    const padded = new Uint8Array(data.length + 1024);
+    // 2. Если инфляция не удалась или для усиления эффекта — Padding
+    // Добавляем 20% от исходного размера нулей в конец файла
+    const paddingSize = Math.floor(data.length * 0.2); 
+    const padded = new Uint8Array(data.length + paddingSize);
     padded.set(data);
-    changes.push('Хеш файла изменён (+1KB padding)');
+    // Забиваем случайными байтами (не нулями), чтобы энтропия была высокой
+    for (let i = data.length; i < padded.length; i++) {
+      padded[i] = Math.floor(Math.random() * 255);
+    }
+    
+    if (!inflated) {
+      changes.push(`Padding: +${(paddingSize / 1024 / 1024).toFixed(1)} MB (обход битрейта)`);
+    } else {
+      changes.push(`Padding: +${(paddingSize / 1024 / 1024).toFixed(1)} MB (усиление)`);
+    }
+
+    // 3. Обнуляем длительность в mvhd
+    const mvhd = findBox(moov.start + moov.hs, moov.start + moov.size, 'mvhd');
+    if (mvhd) {
+      const off = mvhd.start + mvhd.hs;
+      if (off + 16 <= data.length) {
+        const v = data[off];
+        if (v === 0) view.setUint32(off + 16, 0);
+        else if (v === 1) view.setBigUint64(off + 24, 0n);
+        changes.push('mvhd: duration обнулён');
+      }
+    }
 
     return { bytes: padded, changes };
   }
 
   // ═══════════════════════════════════════════
-  //  ЗАПУСК ОПТИМИЗАЦИИ
+  //  ЗАПУСК
   // ═══════════════════════════════════════════
   btnRun.addEventListener('click', async () => {
     if (!originalFile) return;
     btnRun.disabled = true;
-    btnRun.textContent = '⏳ Обработка...';
+    btnRun.textContent = '⏳ Оптимизация...';
     logEl.innerHTML = '';
 
     try {
@@ -469,22 +569,23 @@
       const buf = await originalFile.arrayBuffer();
       await sleep(150);
 
-      log('Применение патча структуры...', 'blue');
-      const result = patchMP4(buf);
+      log('Применение движка сэмплов...', 'blue');
+      const result = optimizeVideo(buf);
       await sleep(300);
 
       result.changes.forEach(c => log('✓ ' + c, 'ok'));
-      await sleep(100);
+      await sleep(150);
 
       patchedBlob = new Blob([result.bytes], { type: 'video/mp4' });
       const outMB = (patchedBlob.size / 1024 / 1024).toFixed(2);
 
-      log(`Готово. Размер: ${outMB} MB`, 'ok');
+      log(`Файл готов. Размер: ${outMB} MB`, 'ok');
+      log('Видео-поток не перекодирован.', 'ok');
 
       statsEl.innerHTML = `
-        Размер: <strong>${(originalFile.size / 1024 / 1024).toFixed(2)} MB</strong> → <strong>${outMB} MB</strong><br>
-        Метаданные: <strong>изменены</strong> (обход сжатия) ✓<br>
-        Видеопоток: <strong>без перекодирования</strong> (оригинал) ✓
+        <div>Размер: <span>${(originalFile.size / 1024 / 1024).toFixed(2)} MB</span> → <span>${outMB} MB</span></div>
+        <div>Сэмплы/Битрейт: <span>изменены</span> ✓</div>
+        <div>Видео: <span>оригинал (без сжатия)</span> ✓</div>
       `;
       successBox.style.display = 'block';
       toast('✅ Контейнер оптимизирован');
@@ -494,7 +595,8 @@
       toast('Ошибка: ' + err.message);
     } finally {
       btnRun.disabled = false;
-      btnRun.textContent = '⚡ Оптимизировать контейнер';
+      btnRun.textContent = '⚡ Оптимизировать';
+      logEl.classList.remove('typing');
     }
   });
 
@@ -506,7 +608,6 @@
     const fileName = 'optimized_' + originalFile.name.replace(/\.[^.]+$/, '') + '.mp4';
     const file = new File([patchedBlob], fileName, { type: 'video/mp4' });
 
-    // iOS / Android
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file], title: 'Оптимизированное видео' });
@@ -517,7 +618,6 @@
       }
     }
 
-    // Fallback
     const url = URL.createObjectURL(patchedBlob);
     const a = document.createElement('a');
     a.href = url;
