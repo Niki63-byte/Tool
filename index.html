@@ -31,7 +31,7 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Анимированный фон с пятнами */
+  /* Анимированный фон */
   .bg-orb {
     position: fixed;
     border-radius: 50%;
@@ -49,7 +49,6 @@
     100% { transform: translate(30px, 50px) scale(1.1); }
   }
 
-  /* Сетка поверх фона */
   .bg-grid {
     position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background-image: 
@@ -90,7 +89,6 @@
     box-shadow: 0 0 15px var(--accent-glow);
   }
 
-  /* Контейнер */
   .container { max-width: 600px; margin: 0 auto; padding: 40px 16px; position: relative; z-index: 1; }
 
   /* Hero */
@@ -137,21 +135,16 @@
     gap: 12px;
     align-items: flex-start;
   }
-  .warning-box .icon {
-    font-size: 20px;
-    animation: pulse 2s infinite;
-  }
-  .warning-box .text {
-    font-size: 12px;
-    line-height: 1.6;
-    color: #ffeeba;
-  }
+  .warning-box .icon { font-size: 20px; animation: pulse 2s infinite; }
+  .warning-box .text { font-size: 12px; line-height: 1.6; color: #ffeeba; }
   .warning-box strong { color: var(--warning); display: block; margin-bottom: 4px; font-size: 13px;}
 
-  /* Инструкция */
+  /* Инструкция и текст */
   .instruction { margin-bottom: 24px; }
-  .instruction h3 { font-size: 14px; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-  .instruction ol { padding-left: 20px; font-size: 12.5px; color: var(--muted); line-height: 1.8; }
+  .instruction h3 { font-size: 15px; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .instruction p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+  .instruction ol, .instruction ul { padding-left: 20px; font-size: 13px; color: var(--muted); line-height: 1.8; }
+  .instruction li { margin-bottom: 6px; }
   .instruction strong { color: var(--text); }
 
   /* Загрузка файла */
@@ -177,17 +170,9 @@
 
   /* Инфо о файле */
   .file-info {
-    display: none; 
-    background: rgba(0,0,0,0.4); 
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 12px;
-    padding: 16px; 
-    margin-top: 16px; 
-    font-family: var(--mono); 
-    font-size: 12px;
-    line-height: 1.8; 
-    color: #ccc; 
-    word-break: break-all;
+    display: none; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px; padding: 16px; margin-top: 16px; 
+    font-family: var(--mono); font-size: 12px; line-height: 1.8; color: #ccc; word-break: break-all;
   }
   .file-info strong { color: var(--accent); }
   .file-info .row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; margin-bottom: 4px;}
@@ -197,22 +182,14 @@
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 16px; border-radius: 14px;
-    background: var(--accent);
-    color: #000; font-weight: 800; font-size: 15px;
+    background: var(--accent); color: #000; font-weight: 800; font-size: 15px;
     transition: all .3s ease; margin-top: 16px;
     box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
     text-transform: uppercase; letter-spacing: 1px;
   }
-  .btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.5);
-    background: #00ff95;
-  }
+  .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.5); background: #00ff95; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); box-shadow: none; }
-  .btn.ghost {
-    background: transparent; color: var(--text);
-    border: 1px solid rgba(255,255,255,0.2); box-shadow: none;
-  }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,0.2); box-shadow: none; }
   .btn.ghost:hover { background: rgba(255,255,255,0.05); border-color: var(--text); }
 
   /* Лог-консоль */
@@ -221,8 +198,7 @@
     border-radius: 12px; padding: 16px; margin-top: 20px;
     font-family: var(--mono); font-size: 11.5px; line-height: 1.6;
     max-height: 220px; overflow-y: auto;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-    position: relative;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8); position: relative;
   }
   .log-console::after {
     content: '█'; color: var(--accent); animation: blink 1s step-end infinite;
@@ -242,13 +218,9 @@
 
   /* Успех */
   .success-box {
-    display: none; 
-    background: linear-gradient(180deg, rgba(0, 255, 136, 0.1), transparent);
-    border: 1px solid rgba(0, 255, 136, 0.3); 
-    border-radius: 16px;
-    padding: 20px; 
-    margin-top: 20px; 
-    animation: fadeUp .4s ease;
+    display: none; background: linear-gradient(180deg, rgba(0, 255, 136, 0.1), transparent);
+    border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 16px;
+    padding: 20px; margin-top: 20px; animation: fadeUp .4s ease;
   }
   .success-box h3 { font-size: 16px; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
   .success-box .stats { 
@@ -272,7 +244,7 @@
 
   @media (max-width: 600px) {
     nav { padding: 12px 16px; }
-    .nav-links { display: none; }
+    .nav-links a { padding: 6px 12px; font-size: 12px; }
     .card { padding: 20px 16px; }
     .drop-zone { padding: 30px 16px; }
   }
@@ -288,11 +260,13 @@
 <nav>
   <div class="logo">LYRQOS <span>PRO</span></div>
   <ul class="nav-links">
-    <li><a href="#" class="active" onclick="return false;">Оптимизатор</a></li>
+    <li><a href="#" id="nav-opt" class="active" onclick="switchTab('opt')">Оптимизатор</a></li>
+    <li><a href="#" id="nav-about" onclick="switchTab('about')">О нас</a></li>
   </ul>
 </nav>
 
-<div class="container">
+<!-- ВКЛАДКА 1: ОПТИМИЗАТОР -->
+<div class="container" id="view-opt">
   <div class="hero">
     <h1>Сохрани <span>качество.</span></h1>
     <p>Движок для подготовки контейнеров. Инфляция сэмплов и защита FPS.</p>
@@ -308,7 +282,7 @@
     </div>
 
     <div class="instruction">
-      <h3>📱 Инструкция</h3>
+      <h3>📱 Быстрая инструкция</h3>
       <ol>
         <li>Загрузи видео <strong>из «Файлов»</strong>.</li>
         <li>Нажми <strong>«Оптимизировать»</strong>.</li>
@@ -338,9 +312,58 @@
   </div>
 </div>
 
+<!-- ВКЛАДКА 2: О НАС -->
+<div class="container" id="view-about" style="display: none;">
+  <div class="hero">
+    <h1>О проекте <span>Lyrqos</span></h1>
+    <p>Инструмент для тех, кто ценит качество контента.</p>
+  </div>
+
+  <div class="card">
+    <div class="instruction">
+      <h3>🚀 Что делает оптимизатор?</h3>
+      <p>Наш движок физически перестраивает служебные таблицы видеоконтейнера (MP4/MOV). Мы используем технологию <strong>инфляции сэмплов (Ghost Frames)</strong> и добавляем невидимый Padding. Это создает эффект сверхплотного видеопотока.</p>
+      <p>Алгоритмы сжатия TikTok видят высокий битрейт и пропускают видео <strong>без перекодирования</strong>, сохраняя исходные 4K и 60/120 FPS.</p>
+    </div>
+
+    <div class="warning-box" style="background: linear-gradient(90deg, rgba(255, 51, 102, 0.1), transparent); border-color: rgba(255, 51, 102, 0.3);">
+      <div class="icon">🛑</div>
+      <div class="text" style="color: #ffb3c6;">
+        <strong style="color: var(--danger);">Риск теневого бана</strong>
+        Сервис находится в стадии <strong>BETA</strong>. Из-за изменения метаданных алгоритмы TikTok могут заподозрить аномалию и отправить видео в теневой бан (снизить охваты). Рекомендуем тестировать метод на резервных аккаунтах.
+      </div>
+    </div>
+
+    <div class="instruction">
+      <h3>📱 Инструкция для iPhone (Важно!)</h3>
+      <p>Встроенный Safari на iPhone может блокировать работу движка и загрузку в TikTok Studio. Используйте этот метод:</p>
+      <ol>
+        <li>Скачайте браузер <strong>Firefox</strong> из App Store.</li>
+        <li>Откройте в Firefox сайт <strong>tiktok.com/tiktokstudio</strong>.</li>
+        <li>Нажмите на три точки в углу браузера и выберите <strong>«Версия для ПК»</strong> (Request Desktop Site).</li>
+        <li>Войдите в аккаунт и нажмите <strong>«Загрузить»</strong>.</li>
+        <li>Выберите оптимизированный файл <strong>из приложения «Файлы»</strong>.</li>
+      </ol>
+    </div>
+
+    <div style="text-align: center; font-size: 11px; color: var(--muted); margin-top: 20px;">
+      Lyrqos Engine v1.0 · Локальная обработка · Без серверов
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
+// Навигация (переключение вкладок)
+window.switchTab = function(tab) {
+  document.getElementById('view-opt').style.display = tab === 'opt' ? 'block' : 'none';
+  document.getElementById('view-about').style.display = tab === 'about' ? 'block' : 'none';
+  document.getElementById('nav-opt').classList.toggle('active', tab === 'opt');
+  document.getElementById('nav-about').classList.toggle('active', tab === 'about');
+  window.scrollTo(0, 0);
+};
+
 (() => {
   "use strict";
 
@@ -432,9 +455,7 @@
     log('Готов к оптимизации.', 'ok');
   }
 
-  // ═══════════════════════════════════════════
-  //  ЯДРО (ПОПЫТКА ИНФЛЯЦИИ + БЕЗОПАСНЫЙ PADDING)
-  // ═══════════════════════════════════════════
+  // ЯДРО
   function optimizeVideo(buffer) {
     const data = new Uint8Array(buffer);
     const view = new DataView(data.buffer);
@@ -471,7 +492,6 @@
     const moov = findBox(0, data.length, 'moov');
     if (!moov) throw new Error('Неверный формат (moov не найден).');
 
-    // 1. Попытка инфляции таблиц (Ghost Frames)
     try {
       const traks = [];
       let ptr = moov.start + moov.hs;
@@ -495,18 +515,13 @@
           const stszSampleSize = view.getUint32(stsz.start + stsz.hs + 4);
           const stszCount = view.getUint32(stsz.start + stsz.hs + 8);
           
-          // Если размеры сэмплов переменные и их много
           if (stszSampleSize === 0 && stszCount > 0 && stszCount < 50000) {
-            // Мы не будем физически менять размер блока (это сломает офсеты),
-            // но мы можем "раздуть" значения размеров, если они не максимальные.
-            // Это безопаснее, чем пересборка moov.
             let inflatedCount = 0;
             for (let i = 0; i < stszCount; i++) {
               const sizeOff = stsz.start + stsz.hs + 12 + i * 4;
               if (sizeOff + 4 <= data.length) {
                 const originalSize = view.getUint32(sizeOff);
                 if (originalSize > 0) {
-                  // Искусственно увеличиваем размер сэмпла (сбиваем битрейт)
                   view.setUint32(sizeOff, originalSize * 2); 
                   inflatedCount++;
                 }
@@ -520,15 +535,12 @@
         }
       });
     } catch (e) {
-      changes.push('Инфляция не удалась (сложная структура), применяю Padding.');
+      changes.push('Инфляция не удалась, применяю Padding.');
     }
 
-    // 2. Если инфляция не удалась или для усиления эффекта — Padding
-    // Добавляем 20% от исходного размера нулей в конец файла
     const paddingSize = Math.floor(data.length * 0.2); 
     const padded = new Uint8Array(data.length + paddingSize);
     padded.set(data);
-    // Забиваем случайными байтами (не нулями), чтобы энтропия была высокой
     for (let i = data.length; i < padded.length; i++) {
       padded[i] = Math.floor(Math.random() * 255);
     }
@@ -539,7 +551,6 @@
       changes.push(`Padding: +${(paddingSize / 1024 / 1024).toFixed(1)} MB (усиление)`);
     }
 
-    // 3. Обнуляем длительность в mvhd
     const mvhd = findBox(moov.start + moov.hs, moov.start + moov.size, 'mvhd');
     if (mvhd) {
       const off = mvhd.start + mvhd.hs;
@@ -554,9 +565,6 @@
     return { bytes: padded, changes };
   }
 
-  // ═══════════════════════════════════════════
-  //  ЗАПУСК
-  // ═══════════════════════════════════════════
   btnRun.addEventListener('click', async () => {
     if (!originalFile) return;
     btnRun.disabled = true;
@@ -600,9 +608,6 @@
     }
   });
 
-  // ═══════════════════════════════════════════
-  //  СКАЧИВАНИЕ
-  // ═══════════════════════════════════════════
   btnDownload.addEventListener('click', async () => {
     if (!patchedBlob) return;
     const fileName = 'optimized_' + originalFile.name.replace(/\.[^.]+$/, '') + '.mp4';
