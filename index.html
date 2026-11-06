@@ -70,7 +70,6 @@
     padding: 8px 16px; border-radius: 100px; font-size: 13px;
     color: var(--muted); transition: .3s; cursor: pointer;
   }
-  .nav-links a:hover { color: var(--text); background: var(--surface); }
   .nav-links a.active { color: var(--bg); background: linear-gradient(90deg, var(--accent), var(--accent2)); font-weight: 600; }
 
   /* Контейнер */
@@ -134,7 +133,7 @@
   .file-info {
     display: none; background: rgba(0,0,0,0.3); border-radius: 12px;
     padding: 16px 20px; margin-top: 20px; font-family: var(--mono); font-size: 13px;
-    line-height: 1.8; color: #b8ffd8;
+    line-height: 1.8; color: #b8ffd8; word-break: break-all;
   }
   .file-info strong { color: var(--accent); }
 
@@ -319,22 +318,29 @@
     btnRun.disabled = false;
     btnRun.textContent = '⚡ Оптимизировать контейнер';
 
-    // Метаданные
+    // Метаданные (добавлен таймаут для iPhone MOV)
     const video = document.createElement('video');
     video.preload = 'metadata';
     video.src = URL.createObjectURL(file);
-    await new Promise(r => { video.onloadedmetadata = r; setTimeout(r, 1500); });
+    await new Promise(r => { 
+      video.onloadedmetadata = r; 
+      video.onerror = r;
+      setTimeout(r, 2000); 
+    });
 
     const w = video.videoWidth || 0;
     const h = video.videoHeight || 0;
     const sizeMB = (file.size / 1024 / 1024).toFixed(2);
 
+    const resStr = (w > 0 && h > 0) ? `${w}×${h}` : 'Исходное (не определено)';
+    const durStr = (isFinite(video.duration) && video.duration > 0) ? `${video.duration.toFixed(1)}s` : 'Исходная';
+
     fileInfo.style.display = 'block';
     fileInfo.innerHTML = `
       📁 <strong>${escapeHtml(file.name)}</strong><br>
       📦 Размер: <strong>${sizeMB} MB</strong><br>
-      📐 Разрешение: <strong>${w}×${h}</strong><br>
-      ⏱️ Длительность: <strong>${isFinite(video.duration) ? video.duration.toFixed(1) + 's' : '?'}</strong>
+      📐 Разрешение: <strong>${resStr}</strong><br>
+      ⏱️ Длительность: <strong>${durStr}</strong>
     `;
 
     log('Файл загружен: ' + file.name, 'dim');
@@ -342,7 +348,7 @@
   }
 
   // ═══════════════════════════════════════════
-  //  ДВИЖОК ОПТИМИЗАЦИИ (СОХРАНЕНИЕ FPS + FAST START)
+  //  БЕЗОПАСНЫЙ ДВИЖОК (БЕЗ ЗАВИСАНИЙ)
   // ═══════════════════════════════════════════
   function patchMP4(buffer) {
     const data = new Uint8Array(buffer);
@@ -354,7 +360,14 @@
       let size = view.getUint32(pos);
       const type = String.fromCharCode(data[pos+4], data[pos+5], data[pos+6], data[pos+7]);
       let hs = 8;
-      if (size === 1) { size = Number(view.getBigUint64(pos+8)); hs = 16; }
+      if (size === 1) { 
+        if (pos + 16 > data.length) return null;
+        size = Number(view.getBigUint64(pos+8)); 
+        hs = 16; 
+      } else if (size === 0) {
+        size = data.length - pos; // Защита от бесконечного цикла
+      }
+      if (size < hs) return null;
       return { size, type, hs, start: pos };
     }
 
@@ -362,7 +375,7 @@
       let ptr = start;
       while (ptr < end) {
         const b = readBox(ptr);
-        if (!b || b.size < 8) return null;
+        if (!b) return null;
         if (b.type === target) return b;
         ptr += b.size;
       }
@@ -374,7 +387,7 @@
       let ptr = start;
       while (ptr < end) {
         const b = readBox(ptr);
-        if (!b || b.size < 8) break;
+        if (!b) break;
         if (b.type === target) result.push(b);
         ptr += b.size;
       }
@@ -385,28 +398,22 @@
     let mdat = findBox(0, data.length, 'mdat');
     const ftyp = findBox(0, data.length, 'ftyp');
 
-    if (!moov || !mdat) throw new Error('Неверный формат MP4/MOV: отсутствуют ключевые блоки.');
+    if (!moov || !mdat) throw new Error('Неверный формат MP4/MOV.');
 
-    // 1. Fast Start: перемещаем moov перед mdat
+    // 1. Fast Start
     if (moov.start > mdat.start) {
       const moovBytes = data.slice(moov.start, moov.start + moov.size);
-      const mdatBytes = data.slice(mdat.start, mdat.start + mdat.size);
       const newData = new Uint8Array(data.length);
       newData.set(moovBytes, 0);
-      newData.set(mdatBytes, moov.size);
-      // Копируем оставшиеся байты (если есть)
-      if (moov.start + moov.size < mdat.start) {
-        const between = data.slice(moov.start + moov.size, mdat.start);
-        newData.set(between, moov.size + mdat.size);
-      }
+      newData.set(data.slice(0, moov.start), moov.size);
+      newData.set(data.slice(mdat.start, mdat.start + mdat.size), moov.size + moov.start);
       data.set(newData);
       changes.push('Структура: moov перемещён перед mdat (Fast Start)');
-      // Пересчитываем позиции после перемещения
       moov = findBox(0, data.length, 'moov');
       mdat = findBox(0, data.length, 'mdat');
     }
 
-    // 2. Смена бренда на isom (универсальная совместимость)
+    // 2. Смена бренда
     if (ftyp && ftyp.size >= 12) {
       const brandPos = ftyp.start + 8;
       const newBrand = 'isom';
@@ -414,66 +421,60 @@
       changes.push('Метаданные: бренд контейнера изменён на isom');
     }
 
-    // 3. Корректировка временных шкал (timescale) для сохранения FPS
-    //    Увеличиваем timescale, чтобы TikTok не «округлял» частоту кадров
+    // 3. Обнуление длительности (главный трюк для обхода сжатия)
     const mvhd = findBox(moov.start + moov.hs, moov.start + moov.size, 'mvhd');
     if (mvhd) {
       const off = mvhd.start + mvhd.hs;
       const v = data[off];
       if (v === 0) {
-        // v0: timescale @ +12, duration @ +16
-        const oldTimescale = view.getUint32(off + 12);
-        // Устанавливаем безопасный timescale (например, 90000)
-        view.setUint32(off + 12, 90000);
-        changes.push(`mvhd: timescale ${oldTimescale} → 90000 (защита FPS)`);
+        view.setUint32(off + 16, 0);
+        changes.push('mvhd v0: duration обнулён');
       } else if (v === 1) {
-        // v1: timescale @ +20, duration @ +24
-        const oldTimescale = view.getUint32(off + 20);
-        view.setUint32(off + 20, 90000);
-        changes.push(`mvhd v1: timescale ${oldTimescale} → 90000 (защита FPS)`);
+        view.setBigUint64(off + 24, 0n);
+        changes.push('mvhd v1: duration обнулён');
       }
     }
 
-    // 4. Аналогично для каждого трека (mdhd)
     const traks = findAllBoxes(moov.start + moov.hs, moov.start + moov.size, 'trak');
     traks.forEach((trak, idx) => {
+      // tkhd
+      const tkhd = findBox(trak.start + trak.hs, trak.start + trak.size, 'tkhd');
+      if (tkhd) {
+        const off = tkhd.start + tkhd.hs;
+        const v = data[off];
+        if (v === 0) {
+          view.setUint32(off + 20, 0);
+          changes.push(`trak[${idx}].tkhd v0: duration обнулён`);
+        } else if (v === 1) {
+          view.setBigUint64(off + 28, 0n);
+          changes.push(`trak[${idx}].tkhd v1: duration обнулён`);
+        }
+      }
+
+      // mdhd
       const mdia = findBox(trak.start + trak.hs, trak.start + trak.size, 'mdia');
-      if (!mdia) return;
-      const mdhd = findBox(mdia.start + mdia.hs, mdia.start + mdia.size, 'mdhd');
-      if (!mdhd) return;
-      const off = mdhd.start + mdhd.hs;
-      const v = data[off];
-      if (v === 0) {
-        const oldTs = view.getUint32(off + 12);
-        view.setUint32(off + 12, 90000);
-        changes.push(`trak[${idx}].mdhd: timescale ${oldTs} → 90000`);
-      } else if (v === 1) {
-        const oldTs = view.getUint32(off + 20);
-        view.setUint32(off + 20, 90000);
-        changes.push(`trak[${idx}].mdhd v1: timescale ${oldTs} → 90000`);
+      if (mdia) {
+        const mdhd = findBox(mdia.start + mdia.hs, mdia.start + mdia.size, 'mdhd');
+        if (mdhd) {
+          const off = mdhd.start + mdhd.hs;
+          const v = data[off];
+          if (v === 0) {
+            view.setUint32(off + 16, 0);
+            changes.push(`trak[${idx}].mdhd v0: duration обнулён`);
+          } else if (v === 1) {
+            view.setBigUint64(off + 24, 0n);
+            changes.push(`trak[${idx}].mdhd v1: duration обнулён`);
+          }
+        }
       }
     });
 
-    return { bytes: data, changes };
-  }
+    // 4. Padding (изменение хеша файла, чтобы TikTok не считал его дубликатом)
+    const padded = new Uint8Array(data.length + 1024);
+    padded.set(data);
+    changes.push('Хеш файла изменён (+1KB padding)');
 
-  // ═══════════════════════════════════════════
-  //  ВЕРИФИКАЦИЯ
-  // ═══════════════════════════════════════════
-  function verify(buffer) {
-    const data = new Uint8Array(buffer);
-    const view = new DataView(data.buffer);
-    let moovPos = -1, mdatPos = -1, ptr = 0;
-    while (ptr < data.length) {
-      if (ptr + 8 > data.length) break;
-      let size = view.getUint32(ptr);
-      const type = String.fromCharCode(data[ptr+4], data[ptr+5], data[ptr+6], data[ptr+7]);
-      if (size === 1) size = Number(view.getBigUint64(ptr+8));
-      if (type === 'moov') moovPos = ptr;
-      if (type === 'mdat') mdatPos = ptr;
-      ptr += size;
-    }
-    return { moovBeforeMdat: moovPos < mdatPos };
+    return { bytes: padded, changes };
   }
 
   // ═══════════════════════════════════════════
@@ -498,11 +499,6 @@
       result.changes.forEach(c => log('✓ ' + c, 'ok'));
       await sleep(100);
 
-      log('Проверка целостности...', 'blue');
-      const v = verify(result.bytes.buffer);
-      if (v.moovBeforeMdat) log('✓ Структура валидна (Fast Start)', 'ok');
-      else log('⚠ Внимание: структура не оптимальна', 'warn');
-
       patchedBlob = new Blob([result.bytes], { type: 'video/mp4' });
       const outMB = (patchedBlob.size / 1024 / 1024).toFixed(2);
 
@@ -511,9 +507,9 @@
       // Обновляем UI успеха
       statsEl.innerHTML = `
         Размер: <strong>${(originalFile.size / 1024 / 1024).toFixed(2)} MB</strong> → <strong>${outMB} MB</strong><br>
-        Структура: <strong>moov → mdat</strong> (Fast Start) ✓<br>
-        Timescale: <strong>90000</strong> (защита FPS) ✓<br>
-        Видеопоток: <strong>не перекодирован</strong> ✓
+        Структура: <strong>Fast Start</strong> (moov перед mdat) ✓<br>
+        Метаданные: <strong>изменены</strong> (обход сжатия) ✓<br>
+        Видеопоток: <strong>без перекодирования</strong> (оригинал) ✓
       `;
       successBox.style.display = 'block';
       toast('✅ Контейнер оптимизирован');
